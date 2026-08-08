@@ -108,7 +108,14 @@
                     </div>
                 </div>
             </div>
-            <div class="map-wrapper" id="map"></div>
+            <div class="map-wrapper">
+                <div class="map-placeholder" id="mapPlaceholder">
+                    <span class="map-placeholder-icon">🗺️</span>
+                    <p>点击加载互动地图</p>
+                    <button class="btn btn-primary" id="loadMapBtn">🥔 加载地图</button>
+                </div>
+                <div id="map" style="display:none;"></div>
+            </div>
         </div>
         <div class="map-legend">
             <div class="legend-item"><span class="legend-dot hero-dot"></span> 土豆侠现身</div>
@@ -334,7 +341,29 @@
         <span class="toast-message"></span>
     </div>
 
-    <script src="https://cdn.bootcdn.net/ajax/libs/leaflet/1.9.4/leaflet.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';document.head.appendChild(s);"></script>
     <script src="script.js"></script>
+    <script>
+        // Lazy load Leaflet only when needed (map button clicked)
+        document.getElementById('loadMapBtn').addEventListener('click', function() {
+            var btn = this;
+            btn.textContent = '⏳ 加载中...';
+            btn.disabled = true;
+            var script = document.createElement('script');
+            script.src = 'leaflet.min.js';
+            script.onload = function() {
+                btn.textContent = '✅ 已加载';
+                initMap();
+            };
+            script.onerror = function() {
+                btn.textContent = '❌ 加载失败，点此重试';
+                btn.disabled = false;
+            };
+            document.body.appendChild(script);
+        });
+        // Auto-load map on desktop
+        if (window.innerWidth > 768) {
+            document.getElementById('loadMapBtn').click();
+        }
+    </script>
 </body>
 </html>

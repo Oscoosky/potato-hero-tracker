@@ -397,6 +397,12 @@ let map;
 let markers = [];
 
 function initMap() {
+    // Swap placeholder with real map
+    var placeholder = document.getElementById('mapPlaceholder');
+    var mapEl = document.getElementById('map');
+    if (placeholder) placeholder.style.display = 'none';
+    if (mapEl) mapEl.style.display = 'block';
+
     // Detect mobile
     const isMobile = window.innerWidth <= 768;
 
@@ -737,30 +743,23 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 // --- Init ---
 function init() {
-    // Always populate data first — doesn't depend on anything
+    // Always populate data — doesn't depend on map or Leaflet
     populateSightingList();
     populateSightingsGrid();
     populateEvents();
     populateSocialFeed();
     setupScrollAnimations();
 
-    // Map needs Leaflet (L) to be loaded — try, but don't block if fails
-    if (typeof L !== 'undefined') {
-        try {
-            initMap();
-        } catch (e) {
-            console.warn('地图初始化失败，记录正常显示:', e.message);
-        }
-    } else {
-        console.warn('Leaflet 未加载，跳过地图');
-    }
+    // Map init is now lazy-loaded — called when user clicks "加载地图"
+    // or auto-triggered on desktop via the inline script in index.html
 }
 
-// Wait for everything (including Leaflet) to fully load
-window.addEventListener('load', function() {
-    // Small delay to ensure all scripts are parsed
-    setTimeout(init, 100);
-});
+// Run immediately when DOM is ready — don't wait for heavy assets
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
 
 // Handle window resize for map
 window.addEventListener('resize', function() {
