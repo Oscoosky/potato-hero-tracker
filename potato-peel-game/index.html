@@ -9,8 +9,10 @@
             --bg: #1a1a2e;
             --card: #16213e;
             --gold: #D4A017;
-            --brown: #8B6914;
-            --cream: #FFF8E7;
+            --easy: #4CAF50;
+            --normal: #FF9800;
+            --hard: #f44336;
+            --hell: #9C27B0;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,35 +32,126 @@
             touch-action: none;
         }
 
-        /* Header */
-        .header {
-            text-align: center;
-            padding: 24px 16px 8px;
-            width: 100%;
-            max-width: 500px;
+        /* Difficulty Select */
+        .diff-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 24px;
+            gap: 24px;
         }
 
-        .header h1 {
-            font-size: clamp(24px, 6vw, 36px);
+        .diff-screen.hidden { display: none; }
+
+        .diff-screen .logo {
+            font-size: 80px;
+            animation: potatoBounce 0.6s ease-in-out infinite alternate;
+        }
+
+        @keyframes potatoBounce {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-20px) scale(1.1); }
+        }
+
+        .diff-screen h1 {
+            font-size: 32px;
             font-weight: 900;
             background: linear-gradient(135deg, #FFD700, #FFA500);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 4px;
+        }
+
+        .diff-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .diff-card {
+            background: var(--card);
+            border: 2px solid #2a3245;
+            border-radius: 16px;
+            padding: 20px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .diff-card:active { transform: scale(0.95); }
+
+        .diff-card.easy { border-color: #2a4a2a; }
+        .diff-card.easy:hover { border-color: var(--easy); box-shadow: 0 0 20px rgba(76,175,80,0.2); }
+        .diff-card.easy .diff-icon { color: var(--easy); }
+
+        .diff-card.normal { border-color: #4a3a1a; }
+        .diff-card.normal:hover { border-color: var(--normal); box-shadow: 0 0 20px rgba(255,152,0,0.2); }
+        .diff-card.normal .diff-icon { color: var(--normal); }
+
+        .diff-card.hard { border-color: #4a1a1a; }
+        .diff-card.hard:hover { border-color: var(--hard); box-shadow: 0 0 20px rgba(244,67,54,0.2); }
+        .diff-card.hard .diff-icon { color: var(--hard); }
+
+        .diff-card.hell { border-color: #3a1a4a; }
+        .diff-card.hell:hover { border-color: var(--hell); box-shadow: 0 0 20px rgba(156,39,176,0.2); }
+        .diff-card.hell .diff-icon { color: var(--hell); }
+
+        .diff-icon { font-size: 40px; display: block; margin-bottom: 8px; }
+        .diff-name { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+        .diff-desc { font-size: 11px; color: #888; line-height: 1.4; }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 20px 16px 4px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header h1 {
+            font-size: clamp(22px, 5vw, 30px);
+            font-weight: 900;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .header .subtitle {
-            font-size: 13px;
+            font-size: 12px;
             color: #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
+
+        .diff-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .diff-badge.easy { background: rgba(76,175,80,0.2); color: var(--easy); }
+        .diff-badge.normal { background: rgba(255,152,0,0.2); color: var(--normal); }
+        .diff-badge.hard { background: rgba(244,67,54,0.2); color: var(--hard); }
+        .diff-badge.hell { background: rgba(156,39,176,0.2); color: var(--hell); }
 
         /* Stats bar */
         .stats-bar {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             justify-content: center;
-            padding: 8px 16px 16px;
+            padding: 8px 16px;
             width: 100%;
             max-width: 500px;
             flex-wrap: wrap;
@@ -66,24 +159,31 @@
 
         .stat-box {
             flex: 1;
-            min-width: 70px;
+            min-width: 55px;
             background: var(--card);
             border: 1px solid #2a3245;
-            border-radius: 12px;
-            padding: 10px 14px;
+            border-radius: 10px;
+            padding: 8px 10px;
             text-align: center;
         }
 
         .stat-value {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 800;
             color: var(--gold);
         }
 
         .stat-label {
-            font-size: 11px;
+            font-size: 10px;
             color: #888;
-            margin-top: 2px;
+            margin-top: 1px;
+        }
+
+        .stat-box.timer-box .stat-value { color: #ff5252; }
+        .stat-box.timer-box.warning .stat-value { animation: blink 0.5s infinite; }
+
+        @keyframes blink {
+            50% { opacity: 0.3; }
         }
 
         /* Game area */
@@ -96,12 +196,11 @@
 
         .game-board {
             position: relative;
-            background: var(--card);
+            background: #0d1117;
             border: 2px solid #2a3245;
             border-radius: 20px;
             overflow: hidden;
             aspect-ratio: 1;
-            cursor: pointer;
             touch-action: none;
         }
 
@@ -114,48 +213,56 @@
 
         /* Progress */
         .progress-wrap {
-            margin: 12px 16px 0;
+            margin: 10px 16px 0;
             max-width: 500px;
             width: 100%;
         }
 
         .progress-bar {
-            height: 20px;
+            height: 22px;
             background: #2a3245;
-            border-radius: 10px;
+            border-radius: 11px;
             overflow: hidden;
             position: relative;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #8B6914, #D4A017, #FFD700);
-            border-radius: 10px;
+            border-radius: 11px;
             transition: width 0.15s;
             position: relative;
         }
 
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            right: 0; top: 0; bottom: 0;
-            width: 30px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
-            border-radius: 10px;
+        .progress-fill.easy-bg { background: linear-gradient(90deg, #388E3C, #4CAF50, #81C784); }
+        .progress-fill.normal-bg { background: linear-gradient(90deg, #E65100, #FF9800, #FFB74D); }
+        .progress-fill.hard-bg { background: linear-gradient(90deg, #B71C1C, #f44336, #EF9A9A); }
+        .progress-fill.hell-bg { background: linear-gradient(90deg, #4A148C, #9C27B0, #CE93D8); }
+
+        .progress-markers {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 4px 0;
+            font-size: 10px;
+            color: #666;
+        }
+
+        .progress-target {
+            color: #fff;
+            font-weight: 700;
         }
 
         .progress-text {
             text-align: center;
-            font-size: 13px;
+            font-size: 12px;
             color: #aaa;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         /* Buttons */
         .btn-row {
             display: flex;
-            gap: 10px;
-            padding: 12px 16px;
+            gap: 8px;
+            padding: 10px 16px;
             max-width: 500px;
             width: 100%;
             justify-content: center;
@@ -163,31 +270,22 @@
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 10px 20px;
             border-radius: 50px;
             border: none;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             font-family: inherit;
             transition: all 0.2s;
-            min-width: 100px;
+            min-width: 70px;
         }
 
-        .btn:active { transform: scale(0.95); }
+        .btn:active { transform: scale(0.94); }
+        .btn:disabled { opacity: 0.4; pointer-events: none; }
 
-        .btn-gold {
-            background: var(--gold);
-            color: #3E2723;
-            box-shadow: 0 4px 16px rgba(212,160,23,0.4);
-        }
-
-        .btn-outline {
-            background: transparent;
-            color: #fff;
-            border: 2px solid #444;
-        }
-
+        .btn-gold { background: var(--gold); color: #3E2723; box-shadow: 0 4px 14px rgba(212,160,23,0.35); }
+        .btn-outline { background: transparent; color: #fff; border: 2px solid #444; }
         .btn-outline:hover { border-color: var(--gold); }
 
         /* Combo popup */
@@ -195,7 +293,7 @@
             position: fixed;
             pointer-events: none;
             font-weight: 900;
-            font-size: 28px;
+            font-size: 32px;
             color: #FFD700;
             animation: comboUp 1s ease-out forwards;
             z-index: 100;
@@ -207,115 +305,151 @@
             100% { transform: translateY(-120px) scale(1.5); opacity: 0; }
         }
 
-        /* Peel particle */
         .peel-particle {
             position: fixed;
             pointer-events: none;
             font-size: 16px;
-            animation: peelFly 0.8s ease-out forwards;
+            animation: peelFly 0.7s ease-out forwards;
             z-index: 99;
         }
 
         @keyframes peelFly {
-            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-            100% { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); opacity: 0; }
+            0% { transform: translate(0,0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--dx),var(--dy)) rotate(var(--r)); opacity: 0; }
         }
 
-        /* Level complete overlay */
+        /* Overlay */
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             border-radius: 20px;
             z-index: 10;
-            gap: 12px;
+            gap: 10px;
         }
 
         .overlay.hidden { display: none; }
 
-        .overlay-emoji {
-            font-size: 72px;
-            animation: potatoBounce 0.5s ease-in-out infinite alternate;
+        .overlay-emoji { font-size: 64px; }
+        .overlay-title { font-size: 24px; font-weight: 900; }
+        .overlay-score { font-size: 36px; font-weight: 900; color: #FFD700; }
+        .overlay-sub { font-size: 13px; color: #aaa; }
+
+        .stars { font-size: 36px; letter-spacing: 4px; }
+        .star-empty { opacity: 0.25; }
+
+        .diff-label {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 4px;
         }
 
-        @keyframes potatoBounce {
-            from { transform: translateY(0); }
-            to { transform: translateY(-15px); }
-        }
+        .diff-label.easy { background: rgba(76,175,80,0.25); color: #81C784; }
+        .diff-label.normal { background: rgba(255,152,0,0.25); color: #FFB74D; }
+        .diff-label.hard { background: rgba(244,67,54,0.25); color: #EF9A9A; }
+        .diff-label.hell { background: rgba(156,39,176,0.25); color: #CE93D8; }
 
-        .overlay-title {
-            font-size: 26px;
-            font-weight: 900;
-        }
-
-        .overlay-score {
-            font-size: 40px;
-            font-weight: 900;
-            color: #FFD700;
-        }
-
-        /* Responsive */
         @media (max-width: 400px) {
-            .stat-box { padding: 8px 10px; }
-            .stat-value { font-size: 18px; }
-            .btn { padding: 10px 18px; font-size: 14px; }
+            .stat-box { padding: 6px 8px; }
+            .stat-value { font-size: 16px; }
+            .btn { padding: 8px 14px; font-size: 13px; min-width: 50px; }
+            .overlay-emoji { font-size: 48px; }
+            .overlay-title { font-size: 20px; }
+            .overlay-score { font-size: 28px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Difficulty Select -->
+    <div class="diff-screen" id="diffScreen">
+        <div class="logo">🥔</div>
+        <h1>选择难度</h1>
+        <div class="diff-grid">
+            <div class="diff-card easy" data-diff="easy">
+                <span class="diff-icon">🌱</span>
+                <div class="diff-name">简单</div>
+                <div class="diff-desc">削皮范围大<br>目标 80% · 无计时</div>
+            </div>
+            <div class="diff-card normal" data-diff="normal">
+                <span class="diff-icon">🥔</span>
+                <div class="diff-name">普通</div>
+                <div class="diff-desc">削皮范围适中<br>目标 88% · 无计时</div>
+            </div>
+            <div class="diff-card hard" data-diff="hard">
+                <span class="diff-icon">🔥</span>
+                <div class="diff-name">困难</div>
+                <div class="diff-desc">削皮范围小<br>目标 92% · 限时60秒</div>
+            </div>
+            <div class="diff-card hell" data-diff="hell">
+                <span class="diff-icon">💀</span>
+                <div class="diff-name">地狱</div>
+                <div class="diff-desc">削皮范围极小<br>目标 95% · 限时45秒</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game UI -->
     <div class="header">
         <h1>🥔 削土豆皮大挑战</h1>
-        <p class="subtitle">手指滑动削皮，削得越干净分数越高！</p>
+        <p class="subtitle">
+            手指滑动削皮
+            <span class="diff-badge easy" id="diffBadge">简单</span>
+        </p>
     </div>
 
     <div class="stats-bar">
-        <div class="stat-box">
-            <div class="stat-value" id="score">0</div>
-            <div class="stat-label">⭐ 得分</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" id="combo">x1</div>
-            <div class="stat-label">🔥 连击</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" id="level">1/5</div>
-            <div class="stat-label">🥔 关卡</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-value" id="bestScore">0</div>
-            <div class="stat-label">🏆 最佳</div>
-        </div>
+        <div class="stat-box"><div class="stat-value" id="score">0</div><div class="stat-label">⭐ 得分</div></div>
+        <div class="stat-box"><div class="stat-value" id="combo">x1</div><div class="stat-label">🔥 连击</div></div>
+        <div class="stat-box"><div class="stat-value" id="levelDisplay">1/5</div><div class="stat-label">🥔 关卡</div></div>
+        <div class="stat-box"><div class="stat-value" id="bestDisplay">0</div><div class="stat-label">🏆 最佳</div></div>
+        <div class="stat-box timer-box" id="timerBox" style="display:none;"><div class="stat-value" id="timer">--</div><div class="stat-label">⏱ 剩余</div></div>
     </div>
 
     <div class="game-container">
         <div class="game-board" id="gameBoard">
             <canvas id="gameCanvas"></canvas>
             <div class="overlay hidden" id="levelOverlay">
-                <div class="overlay-emoji">🥔</div>
+                <div class="overlay-emoji" id="overlayEmoji">✨</div>
                 <div class="overlay-title" id="overlayTitle">太棒了！</div>
-                <div class="overlay-score" id="overlayScore">+100</div>
+                <div class="stars" id="starsDisplay">⭐⭐⭐</div>
+                <div class="overlay-score" id="overlayScore">+200</div>
                 <button class="btn btn-gold" id="overlayBtn">继续下一关 →</button>
             </div>
             <div class="overlay hidden" id="endOverlay">
-                <div class="overlay-emoji">🎉</div>
-                <div class="overlay-title">全部完成！</div>
+                <div class="overlay-emoji" id="endEmoji">🏆</div>
+                <div class="overlay-title">全部通关！</div>
                 <div class="overlay-score" id="endScore">0</div>
-                <p style="color:#aaa;">总分</p>
-                <button class="btn btn-gold" id="restartBtn">🔄 再来一局</button>
+                <div class="overlay-sub">总分</div>
+                <span class="diff-label easy" id="endDiffLabel">简单</span>
+                <button class="btn btn-gold" id="restartBtn" style="margin-top:8px;">🔄 再来一局</button>
+                <button class="btn btn-outline" id="changeDiffBtn">🎚 换个难度</button>
+            </div>
+            <div class="overlay hidden" id="timeoutOverlay">
+                <div class="overlay-emoji">⏰</div>
+                <div class="overlay-title">时间到！</div>
+                <div class="overlay-sub">削皮未达标，挑战失败</div>
+                <button class="btn btn-gold" id="retryBtn">🔄 重试本关</button>
+                <button class="btn btn-outline" id="giveUpBtn">🎚 换个难度</button>
             </div>
         </div>
     </div>
 
     <div class="progress-wrap">
         <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+            <div class="progress-fill easy-bg" id="progressFill" style="width:0%;"></div>
         </div>
-        <p class="progress-text" id="progressText">削皮进度 0%</p>
+        <div class="progress-markers">
+            <span>0%</span><span>25%</span><span>50%</span><span class="progress-target" id="targetMarker">80%</span><span>100%</span>
+        </div>
+        <p class="progress-text" id="progressText">削皮进度 0% · 目标 80%</p>
     </div>
 
     <div class="btn-row">
@@ -324,480 +458,505 @@
         <button class="btn btn-gold" id="btnReset">🔄 重新开始</button>
     </div>
 
-    <script>
-        // --- Game Engine ---
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const board = document.getElementById('gameBoard');
+<script>
+// ─── Difficulty Config ───
+const DIFFICULTIES = {
+    easy:   { name:'简单', icon:'🌱', peelRadius:32, target:80, timeLimit:0,   bonusMul:1.0, desc:'削皮范围大 · 无计时' },
+    normal: { name:'普通', icon:'🥔', peelRadius:24, target:88, timeLimit:0,   bonusMul:1.5, desc:'削皮范围适中 · 无计时' },
+    hard:   { name:'困难', icon:'🔥', peelRadius:17, target:92, timeLimit:60,  bonusMul:2.5, desc:'削皮范围小 · 限时60秒' },
+    hell:   { name:'地狱', icon:'💀', peelRadius:12, target:95, timeLimit:45,  bonusMul:4.0, desc:'削皮范围极小 · 限时45秒' },
+};
 
-        // State
-        let score = 0;
-        let bestScore = parseInt(localStorage.getItem('potatoPeelBest') || '0');
-        let level = 1;
-        const maxLevel = 5;
-        let comboCount = 0;
-        let comboTimer = null;
-        let peeledPixels = 0;
-        let totalSkinPixels = 0;
-        let isPeeling = false;
-        let peelRadius = 28;
-        let potatoData = null;
-        let undoStack = [];
-        let gameActive = true;
+// ─── State ───
+let difficulty = 'normal';
+let score = 0;
+let bestScores = JSON.parse(localStorage.getItem('potatoPeelBests') || '{}');
+let level = 1;
+const maxLevel = 5;
+let comboCount = 0;
+let comboTimer = null;
+let isPeeling = false;
+let peelRadius = 24;
+let potatoData = null;
+let undoStack = [];
+let gameActive = false;
+let timerInterval = null;
+let timeLeft = 0;
+let totalElapsed = 0;
 
-        // Level configs — different potato shapes
-        const levels = [
-            { name: '小土豆', shape: 'oval', scale: 0.75, roughness: 0.08, target: 90, bonus: 100 },
-            { name: '椭圆薯', shape: 'oval', scale: 0.82, roughness: 0.12, target: 92, bonus: 150 },
-            { name: '大块头', shape: 'irregular', scale: 0.88, roughness: 0.15, target: 93, bonus: 200 },
-            { name: '怪形薯', shape: 'irregular', scale: 0.90, roughness: 0.18, target: 94, bonus: 250 },
-            { name: '终极土豆', shape: 'irregular', scale: 0.95, roughness: 0.22, target: 95, bonus: 300 },
-        ];
+// ─── Level configs ───
+const levels = [
+    { name:'小土豆',   shape:'oval',      scale:0.72, roughness:0.06 },
+    { name:'椭圆薯',   shape:'oval',      scale:0.78, roughness:0.10 },
+    { name:'大块头',   shape:'irregular', scale:0.84, roughness:0.14 },
+    { name:'怪形薯',   shape:'irregular', scale:0.90, roughness:0.18 },
+    { name:'终极土豆', shape:'irregular', scale:0.95, roughness:0.24 },
+];
 
-        // Init canvas
-        function resizeCanvas() {
-            const rect = board.getBoundingClientRect();
-            const size = rect.width;
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            canvas.width = size * dpr;
-            canvas.height = size * dpr;
-            canvas.style.width = size + 'px';
-            canvas.style.height = size + 'px';
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.scale(dpr, dpr);
-            return size;
+// ─── DOM ───
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const board = document.getElementById('gameBoard');
+
+// ─── Difficulty Selection ───
+document.querySelectorAll('.diff-card').forEach(card => {
+    card.addEventListener('click', function() {
+        difficulty = this.dataset.diff;
+        document.getElementById('diffScreen').classList.add('hidden');
+        startGame();
+    });
+});
+
+function startGame() {
+    const cfg = DIFFICULTIES[difficulty];
+    peelRadius = cfg.peelRadius;
+    score = 0;
+    level = 1;
+    gameActive = true;
+    updateDifficultyUI();
+    document.getElementById('score').textContent = '0';
+    document.getElementById('levelDisplay').textContent = '1/5';
+    document.getElementById('bestDisplay').textContent = bestScores[difficulty] || '0';
+    updateTimerVisibility();
+    document.getElementById('endOverlay').classList.add('hidden');
+    document.getElementById('timeoutOverlay').classList.add('hidden');
+    document.getElementById('levelOverlay').classList.add('hidden');
+    resetLevel();
+}
+
+function updateDifficultyUI() {
+    const cfg = DIFFICULTIES[difficulty];
+    const badge = document.getElementById('diffBadge');
+    badge.textContent = cfg.name;
+    badge.className = 'diff-badge ' + difficulty;
+    document.getElementById('targetMarker').textContent = cfg.target + '%';
+    document.getElementById('progressFill').className = 'progress-fill ' + difficulty + '-bg';
+}
+
+function updateTimerVisibility() {
+    const cfg = DIFFICULTIES[difficulty];
+    document.getElementById('timerBox').style.display = cfg.timeLimit > 0 ? '' : 'none';
+}
+
+// ─── Timer ───
+function startTimer() {
+    const cfg = DIFFICULTIES[difficulty];
+    if (cfg.timeLimit <= 0) return;
+    timeLeft = cfg.timeLimit;
+    document.getElementById('timer').textContent = timeLeft + 's';
+    document.getElementById('timerBox').classList.remove('warning');
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft + 's';
+        if (timeLeft <= 10) document.getElementById('timerBox').classList.add('warning');
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            onTimeout();
         }
+    }, 1000);
+}
 
-        // Generate potato shape
-        function generatePotato(size) {
-            const cfg = levels[level - 1];
-            const cx = size / 2;
-            const cy = size / 2;
-            const rx = size * cfg.scale * 0.42;
-            const ry = size * cfg.scale * 0.48;
+function onTimeout() {
+    gameActive = false;
+    const pct = getPeelPercent();
+    const cfg = DIFFICULTIES[difficulty];
+    if (pct >= cfg.target) {
+        levelComplete();
+    } else {
+        document.getElementById('timeoutOverlay').classList.remove('hidden');
+    }
+}
 
-            // Create offscreen canvas for potato mask
-            const offCanvas = document.createElement('canvas');
-            offCanvas.width = size;
-            offCanvas.height = size;
-            const offCtx = offCanvas.getContext('2d');
+// ─── Canvas ───
+function resizeCanvas() {
+    const rect = board.getBoundingClientRect();
+    const size = rect.width;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = size * dpr;
+    canvas.height = size * dpr;
+    canvas.style.width = size + 'px';
+    canvas.style.height = size + 'px';
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(dpr, dpr);
+    return size;
+}
 
-            // Draw potato body
-            offCtx.fillStyle = '#C87941';
-            offCtx.beginPath();
+function generatePotato(size) {
+    const lvl = levels[level - 1];
+    const cx = size / 2, cy = size / 2;
+    const rx = size * lvl.scale * 0.42;
+    const ry = size * lvl.scale * 0.48;
 
-            const points = 60;
-            for (let i = 0; i < points; i++) {
-                const angle = (i / points) * Math.PI * 2;
-                const wobble = 1 + cfg.roughness * (Math.sin(angle * 3) * Math.cos(angle * 5) + Math.sin(angle * 7) * 0.5);
-                const px = cx + Math.cos(angle) * rx * wobble;
-                const py = cy + Math.sin(angle) * ry * wobble;
-                if (i === 0) offCtx.moveTo(px, py);
-                else offCtx.lineTo(px, py);
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = size; offCanvas.height = size;
+    const offCtx = offCanvas.getContext('2d');
+
+    offCtx.fillStyle = '#C87941';
+    offCtx.beginPath();
+    const points = 60;
+    for (let i = 0; i < points; i++) {
+        const angle = (i / points) * Math.PI * 2;
+        const wobble = 1 + lvl.roughness * (Math.sin(angle*3)*Math.cos(angle*5) + Math.sin(angle*7)*0.5);
+        const px = cx + Math.cos(angle) * rx * wobble;
+        const py = cy + Math.sin(angle) * ry * wobble;
+        if (i === 0) offCtx.moveTo(px, py);
+        else offCtx.lineTo(px, py);
+    }
+    offCtx.closePath();
+    offCtx.fill();
+
+    // Eyes
+    offCtx.fillStyle = '#8B5A2B';
+    const eyes = [];
+    const numEyes = 2 + Math.floor(Math.random() * 5);
+    for (let i = 0; i < numEyes; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 0.12 + Math.random() * 0.55;
+        const ex = cx + Math.cos(angle) * rx * dist;
+        const ey = cy + Math.sin(angle) * ry * dist;
+        const er = 3 + Math.random() * 7;
+        offCtx.beginPath(); offCtx.arc(ex, ey, er, 0, Math.PI*2); offCtx.fill();
+        eyes.push({ x:ex, y:ey, r:er });
+    }
+
+    offCtx.fillStyle = 'rgba(80,40,10,0.12)';
+    offCtx.beginPath(); offCtx.arc(cx, cy, rx, 0, Math.PI*2); offCtx.fill();
+
+    const skinData = offCtx.getImageData(0, 0, size, size);
+    const skinSet = new Set();
+    for (let i = 0; i < skinData.data.length; i += 4) {
+        if (skinData.data[i + 3] > 0) skinSet.add((i/4) % size + Math.floor((i/4)/size) * size);
+    }
+
+    return { size, cx, cy, rx, ry, skinSet, skinData, eyes, peeled: new Set() };
+}
+
+function render() {
+    const s = potatoData.size;
+    ctx.clearRect(0, 0, s, s);
+
+    // Peeled inside
+    if (potatoData.peeled.size > 0) {
+        ctx.fillStyle = '#FFE082';
+        for (const idx of potatoData.peeled) {
+            ctx.fillRect(idx % s, Math.floor(idx / s), 1, 1);
+        }
+    }
+
+    // Skin
+    for (const idx of potatoData.skinSet) {
+        if (potatoData.peeled.has(idx)) continue;
+        const x = idx % s, y = Math.floor(idx / s);
+        const d = potatoData.skinData.data;
+        const di = (y * s + x) * 4;
+        const r = d[di], g = d[di+1], b = d[di+2];
+        ctx.fillStyle = `rgb(${Math.min(255,r+Math.random()*8)},${Math.min(255,g+Math.random()*8)},${Math.min(255,b+Math.random()*8)})`;
+        ctx.fillRect(x, y, 1, 1);
+    }
+
+    // Eyes
+    for (const eye of potatoData.eyes) {
+        ctx.fillStyle = '#7a4a1e';
+        ctx.beginPath(); ctx.arc(eye.x, eye.y, eye.r, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#5a3010';
+        ctx.beginPath(); ctx.arc(eye.x, eye.y, eye.r*0.45, 0, Math.PI*2); ctx.fill();
+    }
+
+    // Cursor ring
+    if (isPeeling && gameActive) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5,5]);
+        ctx.beginPath(); ctx.arc(mouseX, mouseY, peelRadius, 0, Math.PI*2); ctx.stroke();
+        ctx.setLineDash([]);
+    }
+}
+
+// ─── Peel logic ───
+function peel(x, y) {
+    if (!gameActive || !potatoData) return;
+    const s = potatoData.size;
+    const r = peelRadius;
+    let newly = 0;
+    const newSet = new Set();
+
+    for (let dy = -r; dy <= r; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+            if (dx*dx + dy*dy > r*r) continue;
+            const px = Math.floor(x+dx), py = Math.floor(y+dy);
+            if (px<0||px>=s||py<0||py>=s) continue;
+            const idx = py*s + px;
+            if (potatoData.skinSet.has(idx) && !potatoData.peeled.has(idx)) {
+                potatoData.peeled.add(idx);
+                newSet.add(idx);
+                newly++;
             }
-            offCtx.closePath();
-            offCtx.fill();
+        }
+    }
 
-            // Add eyes (potato eyes / spots)
-            offCtx.fillStyle = '#a0622a';
-            const eyePositions = [];
-            const numEyes = 3 + Math.floor(Math.random() * 4);
-            for (let i = 0; i < numEyes; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const dist = 0.15 + Math.random() * 0.5;
-                const ex = cx + Math.cos(angle) * rx * dist;
-                const ey = cy + Math.sin(angle) * ry * dist;
-                const er = 4 + Math.random() * 8;
-                offCtx.beginPath();
-                offCtx.arc(ex, ey, er, 0, Math.PI * 2);
-                offCtx.fill();
-                eyePositions.push({ x: ex, y: ey, r: er });
-            }
+    if (newly > 0) {
+        comboCount++;
+        clearTimeout(comboTimer);
+        comboTimer = setTimeout(() => { comboCount = 0; updateComboUI(); }, 700);
 
-            // Darker skin shading
-            offCtx.fillStyle = 'rgba(100, 60, 20, 0.15)';
-            offCtx.beginPath();
-            offCtx.arc(cx, cy, rx, 0, Math.PI * 2);
-            offCtx.fill();
+        const cfg = DIFFICULTIES[difficulty];
+        const multiplier = 1 + Math.floor(comboCount / 25);
+        score += newly * multiplier * cfg.bonusMul;
+        updateScore();
+        updateComboUI();
+        updateProgress();
 
-            // Get skin pixel data
-            const skinData = offCtx.getImageData(0, 0, size, size);
-            const skinSet = new Set();
-            for (let i = 0; i < skinData.data.length; i += 4) {
-                if (skinData.data[i + 3] > 0) {
-                    const x = (i / 4) % size;
-                    const y = Math.floor((i / 4) / size);
-                    skinSet.add(y * size + x);
+        if (newly > 5) spawnParticles(x, y, newly);
+        if (comboCount > 0 && comboCount % 25 === 0) showCombo(x, y, Math.floor(comboCount/25)+1);
+
+        const pct = getPeelPercent();
+        if (pct >= cfg.target && gameActive) levelComplete();
+    }
+}
+
+function getPeelPercent() {
+    if (!potatoData) return 0;
+    return Math.round((potatoData.peeled.size / potatoData.skinSet.size) * 100);
+}
+
+function updateProgress() {
+    const pct = getPeelPercent();
+    const cfg = DIFFICULTIES[difficulty];
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = `削皮进度 ${pct}% · 目标 ${cfg.target}%`;
+}
+
+function updateScore() {
+    document.getElementById('score').textContent = Math.floor(score);
+    const prev = bestScores[difficulty] || 0;
+    if (score > prev) {
+        bestScores[difficulty] = Math.floor(score);
+        localStorage.setItem('potatoPeelBests', JSON.stringify(bestScores));
+        document.getElementById('bestDisplay').textContent = Math.floor(score);
+    }
+}
+
+function updateComboUI() {
+    document.getElementById('combo').textContent = 'x' + Math.max(1, Math.floor(comboCount/10)+1);
+}
+
+// ─── Effects ───
+function showCombo(x, y, mult) {
+    const pop = document.createElement('div');
+    pop.className = 'combo-pop';
+    pop.textContent = '🔥 x' + mult;
+    const rect = board.getBoundingClientRect();
+    pop.style.left = rect.left + x + 'px';
+    pop.style.top = rect.top + y + 'px';
+    document.body.appendChild(pop);
+    setTimeout(() => pop.remove(), 1000);
+}
+
+function spawnParticles(x, y, count) {
+    const rect = board.getBoundingClientRect();
+    const p = ['🍂','✨','💫','⭐'];
+    for (let i = 0; i < Math.min(count/4, 8); i++) {
+        const el = document.createElement('div');
+        el.className = 'peel-particle';
+        el.textContent = p[Math.floor(Math.random()*p.length)];
+        el.style.left = rect.left + x + 'px';
+        el.style.top = rect.top + y + 'px';
+        el.style.setProperty('--dx', (Math.random()-0.5)*120+'px');
+        el.style.setProperty('--dy', -(30+Math.random()*80)+'px');
+        el.style.setProperty('--r', (Math.random()-0.5)*360+'deg');
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 700);
+    }
+}
+
+// ─── Level flow ───
+function levelComplete() {
+    gameActive = false;
+    clearInterval(timerInterval);
+    const cfg = DIFFICULTIES[difficulty];
+    const pct = getPeelPercent();
+    timeLeft = Math.max(0, timeLeft);
+
+    // Star rating
+    let stars = 0;
+    if (pct >= cfg.target) stars++;
+    if (pct >= cfg.target + 5) stars++;
+    if (pct >= cfg.target + 9 && (cfg.timeLimit === 0 || timeLeft > cfg.timeLimit * 0.3)) stars++;
+    const starStr = '⭐'.repeat(stars) + '<span class="star-empty">⭐</span>'.repeat(3-stars);
+
+    const bonus = Math.floor(cfg.bonusMul * 100 * stars + (cfg.timeLimit > 0 ? timeLeft * 5 : 0));
+    score += bonus;
+    updateScore();
+
+    const emoji = stars >= 3 ? '🏆' : stars >= 2 ? '✨' : '👍';
+    document.getElementById('overlayEmoji').textContent = emoji;
+    document.getElementById('overlayTitle').textContent = level >= maxLevel ? '全部通关！' : '关卡通过！';
+    document.getElementById('starsDisplay').innerHTML = starStr;
+    document.getElementById('overlayScore').textContent = '+' + bonus + ' 分';
+    document.getElementById('levelOverlay').classList.remove('hidden');
+
+    const btn = document.getElementById('overlayBtn');
+    if (level >= maxLevel) {
+        btn.textContent = '🎉 查看成绩';
+        btn.onclick = showEndScreen;
+    } else {
+        btn.textContent = '继续下一关 →';
+        btn.onclick = nextLevel;
+    }
+}
+
+function showEndScreen() {
+    document.getElementById('levelOverlay').classList.add('hidden');
+    document.getElementById('endOverlay').classList.remove('hidden');
+    document.getElementById('endScore').textContent = Math.floor(score);
+    const emoji = score > 5000 ? '🏆' : score > 2000 ? '🎉' : '🥔';
+    document.getElementById('endEmoji').textContent = emoji;
+    const endDiff = document.getElementById('endDiffLabel');
+    endDiff.textContent = DIFFICULTIES[difficulty].name;
+    endDiff.className = 'diff-label ' + difficulty;
+}
+
+function nextLevel() {
+    level++;
+    document.getElementById('levelDisplay').textContent = level + '/' + maxLevel;
+    document.getElementById('levelOverlay').classList.add('hidden');
+    resetLevel();
+}
+
+function resetLevel() {
+    comboCount = 0;
+    updateComboUI();
+    document.getElementById('progressFill').style.width = '0%';
+    const cfg = DIFFICULTIES[difficulty];
+    document.getElementById('progressText').textContent = '削皮进度 0% · 目标 ' + cfg.target + '%';
+    document.getElementById('levelOverlay').classList.add('hidden');
+    document.getElementById('endOverlay').classList.add('hidden');
+    document.getElementById('timeoutOverlay').classList.add('hidden');
+    gameActive = true;
+    undoStack = [];
+    clearInterval(timerInterval);
+
+    const size = resizeCanvas();
+    potatoData = generatePotato(size);
+    render();
+    startTimer();
+}
+
+function restartFromStart() {
+    score = 0;
+    level = 1;
+    document.getElementById('score').textContent = '0';
+    document.getElementById('levelDisplay').textContent = '1/5';
+    document.getElementById('endOverlay').classList.add('hidden');
+    document.getElementById('timeoutOverlay').classList.add('hidden');
+    resetLevel();
+}
+
+function showDiffSelect() {
+    clearInterval(timerInterval);
+    document.getElementById('endOverlay').classList.add('hidden');
+    document.getElementById('timeoutOverlay').classList.add('hidden');
+    document.getElementById('levelOverlay').classList.add('hidden');
+    document.getElementById('diffScreen').classList.remove('hidden');
+}
+
+// ─── Buttons ───
+document.getElementById('btnUndo').addEventListener('click', () => {
+    if (!gameActive || !potatoData || undoStack.length === 0) return;
+    const last = undoStack.pop();
+    for (const idx of last) potatoData.peeled.delete(idx);
+    comboCount = Math.max(0, comboCount - last.length);
+    updateComboUI();
+    updateProgress();
+    render();
+});
+
+document.getElementById('btnHint').addEventListener('click', () => {
+    if (!gameActive || !potatoData) return;
+    const remaining = [...potatoData.skinSet].filter(i => !potatoData.peeled.has(i));
+    if (!remaining.length) return;
+    const s = potatoData.size;
+    for (let i = 0; i < 12; i++) {
+        const idx = remaining[Math.floor(Math.random()*remaining.length)];
+        ctx.fillStyle = 'rgba(255,255,255,0.45)';
+        ctx.beginPath(); ctx.arc(idx%s, Math.floor(idx/s), 4, 0, Math.PI*2); ctx.fill();
+    }
+});
+
+document.getElementById('btnReset').addEventListener('click', restartFromStart);
+document.getElementById('restartBtn').addEventListener('click', restartFromStart);
+document.getElementById('changeDiffBtn').addEventListener('click', showDiffSelect);
+document.getElementById('retryBtn').addEventListener('click', resetLevel);
+document.getElementById('giveUpBtn').addEventListener('click', showDiffSelect);
+
+// ─── Input ───
+let mouseX=0, mouseY=0;
+
+function getPos(e) {
+    const rect = board.getBoundingClientRect();
+    const s = potatoData ? potatoData.size / rect.width : 1;
+    const c = e.touches ? { x:e.touches[0].clientX, y:e.touches[0].clientY } : { x:e.clientX, y:e.clientY };
+    return { x:(c.x-rect.left)*s, y:(c.y-rect.top)*s };
+}
+
+function onStart(e) {
+    e.preventDefault();
+    if (!gameActive) return;
+    const p = getPos(e);
+    mouseX=p.x; mouseY=p.y;
+    isPeeling = true;
+    undoStack.push(new Set());
+    peel(p.x, p.y);
+}
+
+function onMove(e) {
+    e.preventDefault();
+    if (!isPeeling || !gameActive) return;
+    const p = getPos(e);
+    mouseX=p.x; mouseY=p.y;
+    // Track undo
+    if (undoStack.length && undoStack[undoStack.length-1]) {
+        for (let dy=-peelRadius; dy<=peelRadius; dy++)
+            for (let dx=-peelRadius; dx<=peelRadius; dx++)
+                if (dx*dx+dy*dy <= peelRadius*peelRadius) {
+                    const px=Math.floor(p.x+dx), py=Math.floor(p.y+dy);
+                    const idx = py*potatoData.size + px;
+                    if (potatoData.skinSet.has(idx) && !potatoData.peeled.has(idx))
+                        undoStack[undoStack.length-1].add(idx);
                 }
-            }
+    }
+    peel(p.x, p.y);
+    render();
+}
 
-            return {
-                size,
-                cx, cy, rx, ry,
-                skinSet,
-                skinData,
-                eyes: eyePositions,
-                peeled: new Set(),
-                config: cfg,
-            };
-        }
+function onEnd() {
+    if (!isPeeling) return;
+    isPeeling = false;
+    if (undoStack.length && undoStack[undoStack.length-1].size === 0) undoStack.pop();
+    if (undoStack.length > 30) undoStack.shift();
+    render();
+}
 
-        // Render
-        function render() {
-            const size = potatoData.size;
-            ctx.clearRect(0, 0, size, size);
+board.addEventListener('mousedown', onStart);
+board.addEventListener('mousemove', onMove);
+window.addEventListener('mouseup', onEnd);
+board.addEventListener('touchstart', onStart, { passive:false });
+board.addEventListener('touchmove', onMove, { passive:false });
+window.addEventListener('touchend', onEnd);
+board.addEventListener('touchmove', e => e.preventDefault(), { passive:false });
 
-            // Draw peeled (golden inside)
-            if (potatoData.peeled.size > 0) {
-                ctx.fillStyle = '#FFE082';
-                ctx.beginPath();
-                for (const idx of potatoData.peeled) {
-                    const x = idx % size;
-                    const y = Math.floor(idx / size);
-                    ctx.fillRect(x, y, 1, 1);
-                }
-            }
+// ─── Resize ───
+window.addEventListener('resize', () => {
+    if (potatoData && document.getElementById('diffScreen').classList.contains('hidden')) {
+        potatoData.size = resizeCanvas();
+        render();
+    }
+});
 
-            // Draw skin
-            for (const idx of potatoData.skinSet) {
-                if (potatoData.peeled.has(idx)) continue;
-                const x = idx % size;
-                const y = Math.floor(idx / size);
-                const pxColor = getSkinPixelColor(x, y, size);
-                ctx.fillStyle = pxColor;
-                ctx.fillRect(x, y, 1, 1);
-            }
-
-            // Draw potato eyes
-            for (const eye of potatoData.eyes) {
-                ctx.fillStyle = '#7a4a1e';
-                ctx.beginPath();
-                ctx.arc(eye.x, eye.y, eye.r, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#5a3010';
-                ctx.beginPath();
-                ctx.arc(eye.x, eye.y, eye.r * 0.5, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // Draw peel cursor
-            if (isPeeling && gameActive) {
-                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([4, 4]);
-                ctx.beginPath();
-                ctx.arc(mouseX, mouseY, peelRadius, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.setLineDash([]);
-            }
-        }
-
-        function getSkinPixelColor(x, y, size) {
-            const idx = (y * size + x) * 4;
-            const d = potatoData.skinData.data;
-            if (idx >= d.length) return '#C87941';
-            const r = d[idx];
-            const g = d[idx + 1];
-            const b = d[idx + 2];
-            // Add some variation
-            const vr = Math.min(255, r + (Math.random() - 0.5) * 10);
-            const vg = Math.min(255, g + (Math.random() - 0.5) * 10);
-            const vb = Math.min(255, b + (Math.random() - 0.5) * 10);
-            return `rgb(${vr},${vg},${vb})`;
-        }
-
-        // Peel at position
-        function peel(x, y) {
-            if (!gameActive || !potatoData) return;
-
-            const size = potatoData.size;
-            const radius = peelRadius;
-            let newlyPeeled = 0;
-
-            for (let dy = -radius; dy <= radius; dy++) {
-                for (let dx = -radius; dx <= radius; dx++) {
-                    if (dx * dx + dy * dy > radius * radius) continue;
-                    const px = Math.floor(x + dx);
-                    const py = Math.floor(y + dy);
-                    if (px < 0 || px >= size || py < 0 || py >= size) continue;
-                    const idx = py * size + px;
-                    if (potatoData.skinSet.has(idx) && !potatoData.peeled.has(idx)) {
-                        potatoData.peeled.add(idx);
-                        newlyPeeled++;
-                    }
-                }
-            }
-
-            if (newlyPeeled > 0) {
-                comboCount++;
-                clearTimeout(comboTimer);
-                comboTimer = setTimeout(() => { comboCount = 0; updateComboDisplay(); }, 800);
-
-                const points = newlyPeeled * (1 + Math.floor(comboCount / 30));
-                score += points;
-                updateScore();
-                updateComboDisplay();
-                updateProgress();
-
-                // Spawn peel particles
-                if (newlyPeeled > 5) spawnPeelParticles(x, y, newlyPeeled);
-
-                // Show combo popup
-                if (comboCount > 0 && comboCount % 30 === 0) {
-                    showComboPopup(x, y, Math.floor(comboCount / 30) + 1);
-                }
-
-                // Check level complete
-                const pct = getPeelPercent();
-                if (pct >= potatoData.config.target && gameActive) {
-                    levelComplete();
-                }
-            }
-        }
-
-        function getPeelPercent() {
-            if (!potatoData) return 0;
-            const total = potatoData.skinSet.size;
-            const peeled = potatoData.peeled.size;
-            return Math.round((peeled / total) * 100);
-        }
-
-        function updateProgress() {
-            const pct = getPeelPercent();
-            document.getElementById('progressFill').style.width = pct + '%';
-            document.getElementById('progressText').textContent = `削皮进度 ${pct}%`;
-        }
-
-        function updateScore() {
-            document.getElementById('score').textContent = score;
-            if (score > bestScore) {
-                bestScore = score;
-                localStorage.setItem('potatoPeelBest', bestScore);
-                document.getElementById('bestScore').textContent = bestScore;
-            }
-        }
-
-        function updateComboDisplay() {
-            document.getElementById('combo').textContent = 'x' + Math.max(1, Math.floor(comboCount / 10) + 1);
-        }
-
-        function showComboPopup(x, y, multiplier) {
-            const pop = document.createElement('div');
-            pop.className = 'combo-pop';
-            pop.textContent = `🔥 x${multiplier}`;
-            const rect = board.getBoundingClientRect();
-            pop.style.left = rect.left + x + 'px';
-            pop.style.top = rect.top + y + 'px';
-            document.body.appendChild(pop);
-            setTimeout(() => pop.remove(), 1000);
-        }
-
-        function spawnPeelParticles(x, y, count) {
-            const rect = board.getBoundingClientRect();
-            const particles = ['🍂', '✨', '💫', '🥔', '⭐'];
-            for (let i = 0; i < Math.min(count / 5, 8); i++) {
-                const p = document.createElement('div');
-                p.className = 'peel-particle';
-                p.textContent = particles[Math.floor(Math.random() * particles.length)];
-                p.style.left = rect.left + x + 'px';
-                p.style.top = rect.top + y + 'px';
-                p.style.setProperty('--dx', (Math.random() - 0.5) * 120 + 'px');
-                p.style.setProperty('--dy', -(30 + Math.random() * 80) + 'px');
-                p.style.setProperty('--r', (Math.random() - 0.5) * 360 + 'deg');
-                document.body.appendChild(p);
-                setTimeout(() => p.remove(), 800);
-            }
-        }
-
-        function levelComplete() {
-            gameActive = false;
-            const bonus = potatoData.config.bonus;
-            score += bonus;
-            updateScore();
-
-            const overlay = document.getElementById('levelOverlay');
-            overlay.classList.remove('hidden');
-            document.getElementById('overlayScore').textContent = '+' + bonus + ' 奖励分！';
-            document.getElementById('overlayTitle').textContent =
-                level >= maxLevel ? '🏆 全部通关！' : '✨ 太棒了！';
-
-            const btn = document.getElementById('overlayBtn');
-            if (level >= maxLevel) {
-                btn.textContent = '🎉 查看成绩';
-                btn.onclick = showEndScreen;
-            } else {
-                btn.textContent = '继续下一关 →';
-                btn.onclick = nextLevel;
-            }
-        }
-
-        function showEndScreen() {
-            document.getElementById('levelOverlay').classList.add('hidden');
-            document.getElementById('endOverlay').classList.remove('hidden');
-            document.getElementById('endScore').textContent = score;
-        }
-
-        function nextLevel() {
-            level++;
-            document.getElementById('levelOverlay').classList.add('hidden');
-            document.getElementById('level').textContent = level + '/' + maxLevel;
-            resetLevel();
-        }
-
-        function resetLevel() {
-            comboCount = 0;
-            peeledPixels = 0;
-            updateComboDisplay();
-            document.getElementById('progressFill').style.width = '0%';
-            document.getElementById('progressText').textContent = '削皮进度 0%';
-            document.getElementById('levelOverlay').classList.add('hidden');
-            document.getElementById('endOverlay').classList.add('hidden');
-            gameActive = true;
-            undoStack = [];
-
-            const size = resizeCanvas();
-            potatoData = generatePotato(size);
-            totalSkinPixels = potatoData.skinSet.size;
-            render();
-        }
-
-        function restartGame() {
-            score = 0;
-            level = 1;
-            document.getElementById('score').textContent = '0';
-            document.getElementById('level').textContent = '1/5';
-            document.getElementById('endOverlay').classList.add('hidden');
-            resetLevel();
-        }
-
-        function undoLastPeel() {
-            if (!gameActive || !potatoData || undoStack.length === 0) return;
-            const lastPeeled = undoStack.pop();
-            for (const idx of lastPeeled) {
-                potatoData.peeled.delete(idx);
-            }
-            comboCount = Math.max(0, comboCount - lastPeeled.length);
-            updateComboDisplay();
-            updateProgress();
-            render();
-        }
-
-        function showHint() {
-            if (!gameActive || !potatoData) return;
-            // Flash remaining skin areas
-            let remaining = [];
-            for (const idx of potatoData.skinSet) {
-                if (!potatoData.peeled.has(idx)) {
-                    remaining.push(idx);
-                }
-            }
-            if (remaining.length === 0) return;
-
-            // Highlight random remaining spots
-            const size = potatoData.size;
-            for (let i = 0; i < 15; i++) {
-                const idx = remaining[Math.floor(Math.random() * remaining.length)];
-                const x = idx % size;
-                const y = Math.floor(idx / size);
-                ctx.fillStyle = 'rgba(255,255,255,0.5)';
-                ctx.beginPath();
-                ctx.arc(x, y, 4, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        // --- Input handling ---
-        let mouseX = 0, mouseY = 0;
-
-        function getPos(e) {
-            const rect = board.getBoundingClientRect();
-            const scaleX = potatoData ? potatoData.size / rect.width : 1;
-            const scaleY = potatoData ? potatoData.size / rect.height : 1;
-
-            let clientX, clientY;
-            if (e.touches) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-
-            return {
-                x: (clientX - rect.left) * scaleX,
-                y: (clientY - rect.top) * scaleY,
-            };
-        }
-
-        function onStart(e) {
-            e.preventDefault();
-            if (!gameActive) return;
-            const pos = getPos(e);
-            mouseX = pos.x;
-            mouseY = pos.y;
-            isPeeling = true;
-            undoStack.push(new Set());
-            peel(pos.x, pos.y);
-        }
-
-        function onMove(e) {
-            e.preventDefault();
-            if (!isPeeling || !gameActive) return;
-            const pos = getPos(e);
-            mouseX = pos.x;
-            mouseY = pos.y;
-            peel(pos.x, pos.y);
-            render();
-        }
-
-        function onEnd(e) {
-            if (!isPeeling) return;
-            isPeeling = false;
-            // Save undo state
-            if (undoStack.length > 0 && undoStack[undoStack.length - 1].size === 0) {
-                undoStack.pop();
-            }
-            // Trim undo stack
-            if (undoStack.length > 20) undoStack.shift();
-            render();
-        }
-
-        board.addEventListener('mousedown', onStart);
-        board.addEventListener('mousemove', onMove);
-        board.addEventListener('mouseup', onEnd);
-        board.addEventListener('mouseleave', onEnd);
-        board.addEventListener('touchstart', onStart, { passive: false });
-        board.addEventListener('touchmove', onMove, { passive: false });
-        board.addEventListener('touchend', onEnd);
-
-        // --- Buttons ---
-        document.getElementById('btnUndo').addEventListener('click', undoLastPeel);
-        document.getElementById('btnHint').addEventListener('click', showHint);
-        document.getElementById('btnReset').addEventListener('click', restartGame);
-        document.getElementById('restartBtn').addEventListener('click', restartGame);
-
-        // --- Init ---
-        function init() {
-            document.getElementById('bestScore').textContent = bestScore;
-            const size = resizeCanvas();
-            potatoData = generatePotato(size);
-            totalSkinPixels = potatoData.skinSet.size;
-            render();
-        }
-
-        window.addEventListener('resize', () => {
-            if (potatoData) {
-                const size = resizeCanvas();
-                potatoData.size = size;
-                render();
-            }
-        });
-
-        // Prevent scrolling on game board
-        board.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
-
-        init();
-        console.log('🥔 削土豆皮大挑战就绪！');
-    </script>
+// ─── Init ───
+document.getElementById('bestDisplay').textContent = bestScores[difficulty] || '0';
+console.log('🥔 削土豆皮大挑战 v2 就绪！');
+</script>
 </body>
 </html>
