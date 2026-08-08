@@ -376,12 +376,12 @@
             <div class="diff-card easy" data-diff="easy">
                 <span class="diff-icon">🌱</span>
                 <div class="diff-name">简单</div>
-                <div class="diff-desc">削皮范围大<br>目标 80% · 无计时</div>
+                <div class="diff-desc">削皮范围大<br>目标 80% · 计时</div>
             </div>
             <div class="diff-card normal" data-diff="normal">
                 <span class="diff-icon">🥔</span>
                 <div class="diff-name">普通</div>
-                <div class="diff-desc">削皮范围适中<br>目标 88% · 无计时</div>
+                <div class="diff-desc">削皮范围适中<br>目标 88% · 计时</div>
             </div>
             <div class="diff-card hard" data-diff="hard">
                 <span class="diff-icon">🔥</span>
@@ -410,7 +410,7 @@
         <div class="stat-box"><div class="stat-value" id="combo">x1</div><div class="stat-label">🔥 连击</div></div>
         <div class="stat-box"><div class="stat-value" id="levelDisplay">1/5</div><div class="stat-label">🥔 关卡</div></div>
         <div class="stat-box"><div class="stat-value" id="bestDisplay">0</div><div class="stat-label">🏆 最佳</div></div>
-        <div class="stat-box timer-box" id="timerBox" style="display:none;"><div class="stat-value" id="timer">--</div><div class="stat-label">⏱ 剩余</div></div>
+        <div class="stat-box timer-box" id="timerBox"><div class="stat-value" id="timer">00:00</div><div class="stat-label" id="timerLabel">⏱ 用时</div></div>
     </div>
 
     <div class="game-container">
@@ -534,27 +534,42 @@ function updateDifficultyUI() {
 }
 
 function updateTimerVisibility() {
+    // Timer always visible — shows elapsed time for easy/normal, countdown for hard/hell
     const cfg = DIFFICULTIES[difficulty];
-    document.getElementById('timerBox').style.display = cfg.timeLimit > 0 ? '' : 'none';
+    document.getElementById('timerLabel').textContent = cfg.timeLimit > 0 ? '⏱ 剩余' : '⏱ 用时';
 }
 
 // ─── Timer ───
 function startTimer() {
     const cfg = DIFFICULTIES[difficulty];
-    if (cfg.timeLimit <= 0) return;
-    timeLeft = cfg.timeLimit;
-    document.getElementById('timer').textContent = timeLeft + 's';
-    document.getElementById('timerBox').classList.remove('warning');
     clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-        timeLeft--;
+    document.getElementById('timerBox').classList.remove('warning');
+
+    if (cfg.timeLimit > 0) {
+        // Countdown mode (hard/hell)
+        timeLeft = cfg.timeLimit;
         document.getElementById('timer').textContent = timeLeft + 's';
-        if (timeLeft <= 10) document.getElementById('timerBox').classList.add('warning');
-        if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            onTimeout();
-        }
-    }, 1000);
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer').textContent = timeLeft + 's';
+            if (timeLeft <= 10) document.getElementById('timerBox').classList.add('warning');
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                onTimeout();
+            }
+        }, 1000);
+    } else {
+        // Count-up / elapsed mode (easy/normal)
+        totalElapsed = 0;
+        document.getElementById('timer').textContent = '00:00';
+        timerInterval = setInterval(() => {
+            totalElapsed++;
+            const m = Math.floor(totalElapsed / 60);
+            const s = totalElapsed % 60;
+            document.getElementById('timer').textContent =
+                String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+        }, 1000);
+    }
 }
 
 function onTimeout() {
@@ -782,10 +797,11 @@ function levelComplete() {
     let stars = 0;
     if (pct >= cfg.target) stars++;
     if (pct >= cfg.target + 5) stars++;
-    if (pct >= cfg.target + 9 && (cfg.timeLimit === 0 || timeLeft > cfg.timeLimit * 0.3)) stars++;
+    if (pct >= cfg.target + 9 && (cfg.timeLimit === 0 || timeLeft > cfg.timeLimit * 0.2)) stars++;
     const starStr = '⭐'.repeat(stars) + '<span class="star-empty">⭐</span>'.repeat(3-stars);
 
-    const bonus = Math.floor(cfg.bonusMul * 100 * stars + (cfg.timeLimit > 0 ? timeLeft * 5 : 0));
+    const timeBonus = cfg.timeLimit > 0 ? timeLeft * 5 : Math.max(0, (180 - totalElapsed)) * 2;
+    const bonus = Math.floor(cfg.bonusMul * 100 * stars + timeBonus);
     score += bonus;
     updateScore();
 
