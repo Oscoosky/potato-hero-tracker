@@ -737,30 +737,35 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 // --- Init ---
 function init() {
-    initMap();
+    // Always populate data first — doesn't depend on anything
     populateSightingList();
     populateSightingsGrid();
     populateEvents();
     populateSocialFeed();
     setupScrollAnimations();
 
-    // Add slight delay for map to properly render
-    setTimeout(() => {
-        if (map) map.invalidateSize();
-    }, 500);
+    // Map needs Leaflet (L) to be loaded — try, but don't block if fails
+    if (typeof L !== 'undefined') {
+        try {
+            initMap();
+        } catch (e) {
+            console.warn('地图初始化失败，记录正常显示:', e.message);
+        }
+    } else {
+        console.warn('Leaflet 未加载，跳过地图');
+    }
 }
 
-// Start when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
-}
+// Wait for everything (including Leaflet) to fully load
+window.addEventListener('load', function() {
+    // Small delay to ensure all scripts are parsed
+    setTimeout(init, 100);
+});
 
 // Handle window resize for map
-window.addEventListener('resize', () => {
-    if (map) {
-        setTimeout(() => map.invalidateSize(), 200);
+window.addEventListener('resize', function() {
+    if (typeof map !== 'undefined' && map) {
+        setTimeout(function() { map.invalidateSize(); }, 200);
     }
 });
 
