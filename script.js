@@ -413,11 +413,11 @@ function initMap() {
         attributionControl: !isMobile,
     });
 
-    // Custom dark tile layer
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>',
-        subdomains: 'abcd',
-        maxZoom: 19,
+    // Chinese map tiles - fast in China
+    L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+        attribution: '&copy; 高德地图 | 土豆侠追踪器',
+        subdomains: '1234',
+        maxZoom: 18,
     }).addTo(map);
 
     // Add zoom control at bottom-right on mobile for easier thumb reach
