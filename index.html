@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>土豆侠追踪器 | Potato Hero Tracker</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥔</text></svg>">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader-content">
+            <div class="potato-loader">🥔</div>
+            <p>土豆侠正在赶来...</p>
+            <div class="loading-bar"><div class="loading-fill"></div></div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <span class="logo-icon">🥔</span>
+                <span class="logo-text">土豆侠<span class="logo-sub">追踪器</span></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#map-section" class="nav-link">追踪地图</a></li>
+                <li><a href="#sightings" class="nav-link">目击报告</a></li>
+                <li><a href="#events" class="nav-link">活动</a></li>
+                <li><a href="#downloads" class="nav-link">独家内容</a></li>
+                <li><a href="#about" class="nav-link">关于</a></li>
+            </ul>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="#map-section">追踪地图</a>
+            <a href="#sightings">目击报告</a>
+            <a href="#events">活动</a>
+            <a href="#downloads">独家内容</a>
+            <a href="#about">关于</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <div class="floating-potatoes" id="floatingPotatoes"></div>
+        </div>
+        <div class="hero-content">
+            <div class="hero-badge">🔥 全球追踪进行中</div>
+            <h1 class="hero-title">
+                <span class="title-line">土豆侠</span>
+                <span class="title-sub">POTATO HERO</span>
+            </h1>
+            <p class="hero-desc">
+                加入全球粉丝，一起追踪土豆侠的踪迹！<br>
+                实时地图、独家内容、粉丝社区 —— 一切尽在土豆侠追踪器。
+            </p>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number" data-target="12847">0</span>
+                    <span class="stat-label">目击报告</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" data-target="356">0</span>
+                    <span class="stat-label">覆盖城市</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" data-target="89">0</span>
+                    <span class="stat-label">国家/地区</span>
+                </div>
+            </div>
+            <div class="hero-buttons">
+                <a href="#map-section" class="btn btn-primary">
+                    🗺️ 查看追踪地图
+                </a>
+                <a href="#sightings" class="btn btn-secondary">
+                    📸 提交目击报告
+                </a>
+            </div>
+            <div class="hero-scroll-hint">
+                <span>向下滚动探索</span>
+                <div class="scroll-arrow">↓</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section" id="map-section">
+        <div class="section-header">
+            <h2 class="section-title">🗺️ 全球追踪地图</h2>
+            <p class="section-desc">实时查看土豆侠在全球各地的出现记录。点击标记查看详情！</p>
+        </div>
+        <div class="map-container">
+            <div class="map-sidebar">
+                <div class="sidebar-title">📍 最新目击</div>
+                <div class="sighting-list" id="sightingList">
+                    <!-- JS populated -->
+                </div>
+                <div class="sidebar-footer">
+                    <div class="live-indicator">
+                        <span class="live-dot"></span> 实时更新中
+                    </div>
+                </div>
+            </div>
+            <div class="map-wrapper" id="map"></div>
+        </div>
+        <div class="map-legend">
+            <div class="legend-item"><span class="legend-dot hero-dot"></span> 土豆侠现身</div>
+            <div class="legend-item"><span class="legend-dot event-dot"></span> 特殊事件</div>
+            <div class="legend-item"><span class="legend-dot fan-dot"></span> 粉丝目击</div>
+        </div>
+    </section>
+
+    <!-- Sightings Feed -->
+    <section class="sightings-section" id="sightings">
+        <div class="section-header">
+            <h2 class="section-title">📸 最新目击报告</h2>
+            <p class="section-desc">粉丝们从世界各地发来的土豆侠目击记录</p>
+        </div>
+        <div class="sightings-grid" id="sightingsGrid">
+            <!-- JS populated -->
+        </div>
+        <div class="center-btn">
+            <button class="btn btn-primary" id="loadMoreSightings">加载更多报告 →</button>
+        </div>
+    </section>
+
+    <!-- Events Section -->
+    <section class="events-section" id="events">
+        <div class="section-header">
+            <h2 class="section-title">🎪 活动日程</h2>
+            <p class="section-desc">即将到来的土豆侠主题活动</p>
+        </div>
+        <div class="events-timeline" id="eventsTimeline">
+            <!-- JS populated -->
+        </div>
+    </section>
+
+    <!-- Social Feed -->
+    <section class="social-section" id="social">
+        <div class="section-header">
+            <h2 class="section-title">🐦 社交媒体动态</h2>
+            <p class="section-desc">来自 @PotatoHero 的最新消息</p>
+        </div>
+        <div class="social-feed" id="socialFeed">
+            <!-- JS populated -->
+        </div>
+    </section>
+
+    <!-- Downloads Section -->
+    <section class="downloads-section" id="downloads">
+        <div class="section-header">
+            <h2 class="section-title">🎁 独家内容</h2>
+            <p class="section-desc">下载土豆侠主题壁纸、表情包和贴纸</p>
+        </div>
+        <div class="downloads-grid">
+            <div class="download-card">
+                <div class="download-preview wallpaper-preview">
+                    <div class="wp-phone-mock">
+                        <div class="wp-screen">
+                            <div class="wp-scene">
+                                <span class="wp-hero">🥔</span>
+                                <span class="wp-sparkle wp-s1">✨</span>
+                                <span class="wp-sparkle wp-s2">⭐</span>
+                                <span class="wp-sparkle wp-s3">💫</span>
+                            </div>
+                            <div class="wp-time">9:41</div>
+                        </div>
+                    </div>
+                    <div class="wp-desktop-mock">
+                        <div class="wp-dt-screen">
+                            <span class="wp-dt-hero">🥔</span>
+                            <span class="wp-dt-text">土豆侠</span>
+                            <span class="wp-dt-sub">POTATO HERO</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="download-info">
+                    <h3>📱 土豆侠壁纸包</h3>
+                    <p>手机 & 桌面壁纸 · 4K高清 · 12款</p>
+                    <button class="btn btn-download" onclick="handleDownload('wallpaper')">
+                        📥 下载壁纸
+                    </button>
+                </div>
+            </div>
+            <div class="download-card">
+                <div class="download-preview sticker-preview">
+                    <div class="sticker-grid">
+                        <div class="sticker-cell">🥔</div>
+                        <div class="sticker-cell">😎</div>
+                        <div class="sticker-cell">💪</div>
+                        <div class="sticker-cell">⚡</div>
+                        <div class="sticker-cell">🔥</div>
+                        <div class="sticker-cell">😤</div>
+                        <div class="sticker-cell">🦸</div>
+                        <div class="sticker-cell">✨</div>
+                        <div class="sticker-cell">🍟</div>
+                    </div>
+                </div>
+                <div class="download-info">
+                    <h3>😎 土豆侠表情包</h3>
+                    <p>独家表情 & 贴纸 · 30+ 款 · GIF动图</p>
+                    <button class="btn btn-download" onclick="handleDownload('sticker')">
+                        📥 下载表情包
+                    </button>
+                </div>
+            </div>
+            <div class="download-card">
+                <div class="download-preview avatar-preview">
+                    <div class="avatar-grid">
+                        <div class="avatar-ring av1">🥔</div>
+                        <div class="avatar-ring av2">🦸</div>
+                        <div class="avatar-ring av3">💛</div>
+                        <div class="avatar-ring av4">🌟</div>
+                        <div class="avatar-ring av5">🔥</div>
+                        <div class="avatar-ring av6">⚡</div>
+                    </div>
+                </div>
+                <div class="download-info">
+                    <h3>🦸 土豆侠头像包</h3>
+                    <p>社交头像专属 · 20+ 款 · 圆框方框</p>
+                    <button class="btn btn-download" onclick="handleDownload('avatar')">
+                        📥 下载头像
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about-section" id="about">
+        <div class="about-content">
+            <div class="about-text">
+                <h2>🥔 关于土豆侠</h2>
+                <p>
+                    土豆侠是一位神秘的超级英雄，拥有土豆赋予的超凡力量。
+                    他穿梭于世界各地的城市与乡村，用土豆的力量帮助需要帮助的人。
+                </p>
+                <p>
+                    没人知道他的真实身份，但每当土豆收获的季节，
+                    他总会出现在最需要他的地方——从农田到都市，从学校到社区。
+                </p>
+                <div class="about-features">
+                    <div class="feature">
+                        <span class="feature-icon">💪</span>
+                        <span>土豆力量</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">⚡</span>
+                        <span>薯光速度</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🛡️</span>
+                        <span>薯皮护盾</span>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🌟</span>
+                        <span>淀粉能量</span>
+                    </div>
+                </div>
+            </div>
+            <div class="about-visual">
+                <div class="hero-silhouette">
+                    <div class="potato-hero-illustration">
+                        <div class="potato-body">🥔</div>
+                        <div class="potato-mask">🦸</div>
+                        <div class="potato-cape"></div>
+                        <div class="potato-belt">⭐</div>
+                        <div class="potato-particles">
+                            <span>✨</span><span>⭐</span><span>💫</span><span>🌟</span><span>🔥</span><span>💛</span>
+                        </div>
+                        <div class="potato-shadow">🟤</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="newsletter-section">
+        <div class="newsletter-content">
+            <h2>📧 订阅土豆侠追踪器</h2>
+            <p>第一时间获取土豆侠的最新动态和独家内容！</p>
+            <form class="newsletter-form" id="newsletterForm">
+                <input type="email" placeholder="输入你的邮箱地址..." required class="newsletter-input">
+                <button type="submit" class="btn btn-primary">订阅</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="footer-logo">🥔 土豆侠追踪器</span>
+                <p>全球粉丝社区 · 非官方粉丝站点</p>
+                <p class="footer-disclaimer">本网站为粉丝创作，与任何官方组织无关。</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>导航</h4>
+                    <a href="#map-section">追踪地图</a>
+                    <a href="#sightings">目击报告</a>
+                    <a href="#events">活动日程</a>
+                </div>
+                <div class="footer-col">
+                    <h4>资源</h4>
+                    <a href="#downloads">独家内容</a>
+                    <a href="#about">关于土豆侠</a>
+                    <a href="#social">社交媒体</a>
+                </div>
+                <div class="footer-col">
+                    <h4>社区</h4>
+                    <a href="#">微博</a>
+                    <a href="#">哔哩哔哩</a>
+                    <a href="#">抖音</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 土豆侠追踪器 Potato Hero Tracker · 🥔 Powered by Fans</p>
+        </div>
+    </footer>
+
+    <!-- Toast notification -->
+    <div class="toast" id="toast">
+        <span class="toast-icon">🥔</span>
+        <span class="toast-message"></span>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
