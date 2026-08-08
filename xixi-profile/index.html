@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#FF6B9D">
+    <title>嘻嘻 | 抖音主播</title>
+    <style>
+        :root {
+            --pink: #FF6B9D;
+            --pink-light: #FF8FB3;
+            --purple: #C471ED;
+            --blue: #12C2E9;
+            --bg: #0f0f1a;
+            --card: #1a1a2e;
+            --text: #fff;
+            --text-secondary: #aab;
+            --gold: #FFD700;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* ─── Hero ─── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 20%, rgba(255,107,157,0.15), transparent 60%),
+                        radial-gradient(ellipse at 70% 60%, rgba(18,194,233,0.1), transparent 60%),
+                        radial-gradient(ellipse at 50% 80%, rgba(196,113,237,0.1), transparent 50%);
+        }
+
+        .hero-bg-emoji {
+            position: absolute;
+            font-size: 40px;
+            opacity: 0.08;
+            animation: floatAround 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes floatAround {
+            0%   { transform: translate(0, 0) rotate(0deg); }
+            25%  { transform: translate(100px, -50px) rotate(90deg); }
+            50%  { transform: translate(50px, -100px) rotate(180deg); }
+            75%  { transform: translate(-80px, -30px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+
+        .hero-content { position: relative; z-index: 1; }
+
+        .avatar-wrap {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+
+        .avatar {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 70px;
+            box-shadow: 0 0 60px rgba(255,107,157,0.4), 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .avatar-ring {
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--pink);
+            border-right-color: var(--blue);
+            animation: ringSpin 3s linear infinite;
+        }
+
+        @keyframes ringSpin { to { transform: rotate(360deg); } }
+
+        .live-badge {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: #ff1744;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 2px 8px rgba(255,23,68,0.5);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 8vw, 64px);
+            font-weight: 900;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, var(--pink), var(--purple), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 2px 8px rgba(255,107,157,0.3));
+        }
+
+        .hero .tagline {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            letter-spacing: 2px;
+        }
+
+        .hero .stats-row {
+            display: flex;
+            gap: 32px;
+            margin-top: 28px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            text-align: center;
+        }
+
+        .hero-stat .num {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gold), #FFA000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-stat .lbl {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 32px;
+            border-radius: 50px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.25s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            color: #fff;
+            box-shadow: 0 6px 24px rgba(255,107,157,0.35);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,107,157,0.5); }
+        .btn-primary:active { transform: scale(0.95); }
+
+        .btn-outline {
+            background: transparent;
+            color: #fff;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        .btn-outline:hover { border-color: var(--pink); background: rgba(255,107,157,0.1); }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* ─── Sections ─── */
+        .section {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 900;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 36px;
+            font-size: 14px;
+        }
+
+        /* ─── About ─── */
+        .about-card {
+            background: var(--card);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .about-card p {
+            color: var(--text-secondary);
+            font-size: 15px;
+            line-height: 1.8;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .about-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .tag {
+            background: rgba(255,107,157,0.12);
+            color: var(--pink-light);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* ─── Schedule ─── */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+        }
+
+        .schedule-card {
+            background: var(--card);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 20px 16px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .schedule-card:hover { border-color: var(--pink); }
+
+        .schedule-card .day {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--pink-light);
+            margin-bottom: 6px;
+        }
+
+        .schedule-card .time {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .schedule-card .status {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .schedule-card.live .status { color: #4CAF50; }
+        .schedule-card.off .status { color: #666; }
+
+        /* ─── Highlights ─── */
+        .highlight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .highlight-card {
+            background: var(--card);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .highlight-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.15); }
+
+        .highlight-thumb {
+            aspect-ratio: 16/10;
+            background: linear-gradient(135deg, #1a1a3e, #2a1a3e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            position: relative;
+        }
+
+        .highlight-play {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .highlight-info {
+            padding: 16px;
+        }
+
+        .highlight-info h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .highlight-info .meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ─── Social ─── */
+        .social-links {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+
+        .social-link .icon-circle {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            transition: all 0.2s;
+        }
+
+        .social-link:hover .icon-circle { transform: scale(1.1); }
+
+        .social-link .platform {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .icon-douyin { background: linear-gradient(135deg, #111, #333); }
+        .icon-weibo  { background: linear-gradient(135deg, #E6162D, #FF4040); }
+        .icon-bili   { background: linear-gradient(135deg, #FB7299, #FF8FB3); }
+        .icon-xiaohongshu { background: linear-gradient(135deg, #FE2C55, #FF6B6B); }
+        .icon-wechat  { background: linear-gradient(135deg, #07C160, #2ED573); }
+
+        /* ─── Footer ─── */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: rgba(255,255,255,0.2);
+            font-size: 12px;
+        }
+
+        .footer .emoji-divider {
+            font-size: 24px;
+            margin-bottom: 12px;
+            letter-spacing: 8px;
+        }
+
+        /* ─── Toast ─── */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--card);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 14px;
+            z-index: 999;
+            transition: transform 0.3s ease;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .toast.show { transform: translateX(-50%) translateY(0); }
+
+        @media (max-width: 600px) {
+            .hero { min-height: 90vh; }
+            .hero h1 { font-size: 36px; }
+            .hero-stat .num { font-size: 22px; }
+            .btn { padding: 10px 24px; font-size: 14px; }
+            .section { padding: 40px 16px; }
+            .section-title { font-size: 22px; }
+            .about-card { padding: 24px 20px; }
+            .schedule-grid { grid-template-columns: repeat(2, 1fr); }
+            .highlight-grid { grid-template-columns: 1fr; }
+            .social-link .icon-circle { width: 56px; height: 56px; font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero" id="home">
+    <!-- Floating bg emojis -->
+    <span class="hero-bg-emoji" style="top:10%;left:5%;font-size:60px;">😂</span>
+    <span class="hero-bg-emoji" style="top:15%;right:8%;font-size:45px;animation-delay:-7s;">🎵</span>
+    <span class="hero-bg-emoji" style="top:60%;left:10%;font-size:35px;animation-delay:-13s;">💖</span>
+    <span class="hero-bg-emoji" style="top:50%;right:5%;font-size:50px;animation-delay:-5s;">✨</span>
+    <span class="hero-bg-emoji" style="top:80%;left:20%;font-size:30px;animation-delay:-10s;">🎀</span>
+    <span class="hero-bg-emoji" style="top:75%;right:15%;font-size:38px;animation-delay:-16s;">🌟</span>
+
+    <div class="hero-content">
+        <div class="avatar-wrap">
+            <div class="avatar-ring"></div>
+            <div class="avatar">😊</div>
+            <div class="live-badge">🔴 LIVE</div>
+        </div>
+        <h1>嘻嘻</h1>
+        <p class="tagline">✨ 每天带给你欢乐时光 ✨</p>
+        <div class="stats-row">
+            <div class="hero-stat">
+                <div class="num" data-count="128000">12.8w</div>
+                <div class="lbl">粉丝</div>
+            </div>
+            <div class="hero-stat">
+                <div class="num">368</div>
+                <div class="lbl">作品</div>
+            </div>
+            <div class="hero-stat">
+                <div class="num">1.2w</div>
+                <div class="lbl">获赞(万)</div>
+            </div>
+        </div>
+        <div class="hero-btns">
+            <a href="https://www.douyin.com" target="_blank" class="btn btn-primary">🎵 进入抖音主页</a>
+            <a href="#about" class="btn btn-outline">👋 了解更多</a>
+        </div>
+    </div>
+    <div class="scroll-hint">向下滑动 ↓</div>
+</section>
+
+<!-- About -->
+<section class="section" id="about">
+    <h2 class="section-title">👋 关于嘻嘻</h2>
+    <p class="section-subtitle">一个给大家带来快乐的女孩</p>
+    <div class="about-card">
+        <p>
+            嗨！我是<strong>嘻嘻</strong>，一个热爱生活的抖音主播 🎀<br>
+            喜欢聊天、唱歌、分享日常，希望在这里遇到每一个有趣的你 💕<br>
+            每天直播间见，一起嘻嘻哈哈，开心每一天！
+        </p>
+        <div class="about-tags">
+            <span class="tag">🎤 聊天互动</span>
+            <span class="tag">🎵 唱歌</span>
+            <span class="tag">😂 搞笑日常</span>
+            <span class="tag">💄 美妆分享</span>
+            <span class="tag">🍜 美食探店</span>
+            <span class="tag">🎮 偶尔游戏</span>
+        </div>
+    </div>
+</section>
+
+<!-- Schedule -->
+<section class="section" id="schedule">
+    <h2 class="section-title">📅 直播时间</h2>
+    <p class="section-subtitle">准时开播，不见不散～</p>
+    <div class="schedule-grid">
+        <div class="schedule-card live">
+            <div class="day">🌞 周一</div>
+            <div class="time">20:00</div>
+            <div class="status">● 直播</div>
+        </div>
+        <div class="schedule-card live">
+            <div class="day">🌞 周二</div>
+            <div class="time">20:00</div>
+            <div class="status">● 直播</div>
+        </div>
+        <div class="schedule-card off">
+            <div class="day">🌙 周三</div>
+            <div class="time">休息</div>
+            <div class="status">○ 休息日</div>
+        </div>
+        <div class="schedule-card live">
+            <div class="day">🌞 周四</div>
+            <div class="time">20:00</div>
+            <div class="status">● 直播</div>
+        </div>
+        <div class="schedule-card live">
+            <div class="day">🌞 周五</div>
+            <div class="time">21:00</div>
+            <div class="status">● 直播</div>
+        </div>
+        <div class="schedule-card live">
+            <div class="day">🎉 周六</div>
+            <div class="time">19:30</div>
+            <div class="status">● 直播</div>
+        </div>
+        <div class="schedule-card off">
+            <div class="day">😴 周日</div>
+            <div class="time">休息</div>
+            <div class="status">○ 休息日</div>
+        </div>
+    </div>
+</section>
+
+<!-- Highlights -->
+<section class="section" id="highlights">
+    <h2 class="section-title">🎬 精彩瞬间</h2>
+    <p class="section-subtitle">精选直播 & 视频内容</p>
+    <div class="highlight-grid">
+        <div class="highlight-card">
+            <div class="highlight-thumb">
+                😂
+                <div class="highlight-play">▶</div>
+            </div>
+            <div class="highlight-info">
+                <h4>今日份快乐源泉</h4>
+                <p class="meta">🎵 搞笑日常 · 15.2w 播放</p>
+            </div>
+        </div>
+        <div class="highlight-card">
+            <div class="highlight-thumb">
+                🎤
+                <div class="highlight-play">▶</div>
+            </div>
+            <div class="highlight-info">
+                <h4>直播间翻唱合集</h4>
+                <p class="meta">🎵 音乐 · 8.9w 播放</p>
+            </div>
+        </div>
+        <div class="highlight-card">
+            <div class="highlight-thumb">
+                💄
+                <div class="highlight-play">▶</div>
+            </div>
+            <div class="highlight-info">
+                <h4>日常妆容分享</h4>
+                <p class="meta">🎵 美妆 · 6.5w 播放</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Social -->
+<section class="section" id="social">
+    <h2 class="section-title">🔗 找到嘻嘻</h2>
+    <p class="section-subtitle">全网同名，欢迎关注～</p>
+    <div class="social-links">
+        <a href="https://www.douyin.com" target="_blank" class="social-link">
+            <div class="icon-circle icon-douyin">🎵</div>
+            <span class="platform">抖音</span>
+        </a>
+        <a href="#" class="social-link" onclick="toast('微博账号待填写')">
+            <div class="icon-circle icon-weibo">📢</div>
+            <span class="platform">微博</span>
+        </a>
+        <a href="#" class="social-link" onclick="toast('B站账号待填写')">
+            <div class="icon-circle icon-bili">📺</div>
+            <span class="platform">哔哩哔哩</span>
+        </a>
+        <a href="#" class="social-link" onclick="toast('小红书账号待填写')">
+            <div class="icon-circle icon-xiaohongshu">📕</div>
+            <span class="platform">小红书</span>
+        </a>
+        <a href="#" class="social-link" onclick="toast('微信号待填写')">
+            <div class="icon-circle icon-wechat">💬</div>
+            <span class="platform">微信</span>
+        </a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="emoji-divider">😊 🎀 ✨ 💕 🎵 😂</div>
+    <p>© 2026 嘻嘻 | 粉丝站点 · 用心发电 ⚡</p>
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+        a.addEventListener('click', function(e) {
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Toast
+    function toast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.classList.add('show');
+        clearTimeout(t._tid);
+        t._tid = setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    // Intersection Observer for scroll animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.section, .about-card, .highlight-card, .schedule-card').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(el);
+    });
+
+    // Parallax effect on hero emojis
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        document.querySelectorAll('.hero-bg-emoji').forEach((emoji, i) => {
+            const speed = 0.3 + i * 0.1;
+            emoji.style.transform = `translateY(${scrolled * speed}px)`;
+        });
+    });
+
+    console.log('😊 嘻嘻的主页加载完毕！');
+</script>
+</body>
+</html>
