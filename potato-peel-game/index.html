@@ -322,17 +322,25 @@
         .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.88);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             border-radius: 20px;
-            z-index: 10;
-            gap: 10px;
+            z-index: 20;
+            gap: 12px;
+            touch-action: manipulation;
         }
 
-        .overlay.hidden { display: none; }
+        .overlay.hidden { display: none; pointer-events: none; }
+
+        .overlay .btn {
+            min-width: 160px;
+            min-height: 48px;
+            font-size: 16px;
+            touch-action: manipulation;
+        }
 
         .overlay-emoji { font-size: 64px; }
         .overlay-title { font-size: 24px; font-weight: 900; }
@@ -917,8 +925,8 @@ function getPos(e) {
 }
 
 function onStart(e) {
-    e.preventDefault();
     if (!gameActive) return;
+    e.preventDefault();
     const p = getPos(e);
     mouseX=p.x; mouseY=p.y;
     isPeeling = true;
@@ -960,7 +968,7 @@ window.addEventListener('mouseup', onEnd);
 board.addEventListener('touchstart', onStart, { passive:false });
 board.addEventListener('touchmove', onMove, { passive:false });
 window.addEventListener('touchend', onEnd);
-board.addEventListener('touchmove', e => e.preventDefault(), { passive:false });
+board.addEventListener('touchmove', e => { if (gameActive) e.preventDefault(); }, { passive:false });
 
 // ─── Resize ───
 window.addEventListener('resize', () => {
