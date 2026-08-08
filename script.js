@@ -400,29 +400,47 @@ function initMap() {
     // Detect mobile
     const isMobile = window.innerWidth <= 768;
 
-    map = L.map('map', {
-        center: [30, 110],
-        zoom: 4,
-        zoomControl: !isMobile,
-        scrollWheelZoom: !isMobile,
-        dragging: true,
-        tap: true,
-        touchZoom: true,
-        doubleClickZoom: !isMobile,
-        worldCopyJump: true,
-        attributionControl: !isMobile,
-    });
+    try {
+        map = L.map('map', {
+            center: [30, 110],
+            zoom: 4,
+            zoomControl: !isMobile,
+            scrollWheelZoom: !isMobile,
+            dragging: true,
+            tap: true,
+            touchZoom: true,
+            doubleClickZoom: !isMobile,
+            worldCopyJump: true,
+            attributionControl: !isMobile,
+        });
 
-    // Chinese map tiles - fast in China
-    L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
-        attribution: '&copy; 高德地图 | 土豆侠追踪器',
-        subdomains: '1234',
-        maxZoom: 18,
-    }).addTo(map);
+        // Try Gaode tiles first (fast in China), fallback to OSM
+        const gaodeLayer = L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}', {
+            attribution: '&copy; 高德地图',
+            subdomains: '1234',
+            maxZoom: 18,
+        }).addTo(map);
 
-    // Add zoom control at bottom-right on mobile for easier thumb reach
-    if (isMobile) {
-        L.control.zoom({ position: 'bottomright' }).addTo(map);
+        // Fallback: if Gaode tiles fail to load, switch to OSM
+        gaodeLayer.on('tileerror', function() {
+            if (gaodeLayer._fallbackTriggered) return;
+            gaodeLayer._fallbackTriggered = true;
+            map.removeLayer(gaodeLayer);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap',
+                maxZoom: 19,
+            }).addTo(map);
+        });
+
+        // Add zoom control at bottom-right on mobile for easier thumb reach
+        if (isMobile) {
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+        }
+    } catch (e) {
+        console.warn('Map init failed:', e);
+        // Show a fallback message in the map container
+        document.getElementById('map').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#1a1a2e;color:#888;font-size:16px;">🗺️ 地图加载中，请检查网络...</div>';
+        map = null;
     }
 
     // Add markers
