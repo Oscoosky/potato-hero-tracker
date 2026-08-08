@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🥔 削土豆皮大挑战</title>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --card: #16213e;
+            --gold: #D4A017;
+            --brown: #8B6914;
+            --cream: #FFF8E7;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 24px 16px 8px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header h1 {
+            font-size: clamp(24px, 6vw, 36px);
+            font-weight: 900;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+
+        .header .subtitle {
+            font-size: 13px;
+            color: #888;
+        }
+
+        /* Stats bar */
+        .stats-bar {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            padding: 8px 16px 16px;
+            width: 100%;
+            max-width: 500px;
+            flex-wrap: wrap;
+        }
+
+        .stat-box {
+            flex: 1;
+            min-width: 70px;
+            background: var(--card);
+            border: 1px solid #2a3245;
+            border-radius: 12px;
+            padding: 10px 14px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--gold);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        /* Game area */
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            padding: 0 16px;
+        }
+
+        .game-board {
+            position: relative;
+            background: var(--card);
+            border: 2px solid #2a3245;
+            border-radius: 20px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        /* Progress */
+        .progress-wrap {
+            margin: 12px 16px 0;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: #2a3245;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B6914, #D4A017, #FFD700);
+            border-radius: 10px;
+            transition: width 0.15s;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0; top: 0; bottom: 0;
+            width: 30px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 13px;
+            color: #aaa;
+            margin-top: 6px;
+        }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            padding: 12px 16px;
+            max-width: 500px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 50px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            min-width: 100px;
+        }
+
+        .btn:active { transform: scale(0.95); }
+
+        .btn-gold {
+            background: var(--gold);
+            color: #3E2723;
+            box-shadow: 0 4px 16px rgba(212,160,23,0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #444;
+        }
+
+        .btn-outline:hover { border-color: var(--gold); }
+
+        /* Combo popup */
+        .combo-pop {
+            position: fixed;
+            pointer-events: none;
+            font-weight: 900;
+            font-size: 28px;
+            color: #FFD700;
+            animation: comboUp 1s ease-out forwards;
+            z-index: 100;
+            text-shadow: 0 0 20px rgba(255,215,0,0.8);
+        }
+
+        @keyframes comboUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 1; }
+            100% { transform: translateY(-120px) scale(1.5); opacity: 0; }
+        }
+
+        /* Peel particle */
+        .peel-particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 16px;
+            animation: peelFly 0.8s ease-out forwards;
+            z-index: 99;
+        }
+
+        @keyframes peelFly {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); opacity: 0; }
+        }
+
+        /* Level complete overlay */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            z-index: 10;
+            gap: 12px;
+        }
+
+        .overlay.hidden { display: none; }
+
+        .overlay-emoji {
+            font-size: 72px;
+            animation: potatoBounce 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes potatoBounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-15px); }
+        }
+
+        .overlay-title {
+            font-size: 26px;
+            font-weight: 900;
+        }
+
+        .overlay-score {
+            font-size: 40px;
+            font-weight: 900;
+            color: #FFD700;
+        }
+
+        /* Responsive */
+        @media (max-width: 400px) {
+            .stat-box { padding: 8px 10px; }
+            .stat-value { font-size: 18px; }
+            .btn { padding: 10px 18px; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🥔 削土豆皮大挑战</h1>
+        <p class="subtitle">手指滑动削皮，削得越干净分数越高！</p>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat-box">
+            <div class="stat-value" id="score">0</div>
+            <div class="stat-label">⭐ 得分</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="combo">x1</div>
+            <div class="stat-label">🔥 连击</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="level">1/5</div>
+            <div class="stat-label">🥔 关卡</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="bestScore">0</div>
+            <div class="stat-label">🏆 最佳</div>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="game-board" id="gameBoard">
+            <canvas id="gameCanvas"></canvas>
+            <div class="overlay hidden" id="levelOverlay">
+                <div class="overlay-emoji">🥔</div>
+                <div class="overlay-title" id="overlayTitle">太棒了！</div>
+                <div class="overlay-score" id="overlayScore">+100</div>
+                <button class="btn btn-gold" id="overlayBtn">继续下一关 →</button>
+            </div>
+            <div class="overlay hidden" id="endOverlay">
+                <div class="overlay-emoji">🎉</div>
+                <div class="overlay-title">全部完成！</div>
+                <div class="overlay-score" id="endScore">0</div>
+                <p style="color:#aaa;">总分</p>
+                <button class="btn btn-gold" id="restartBtn">🔄 再来一局</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress-wrap">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+        </div>
+        <p class="progress-text" id="progressText">削皮进度 0%</p>
+    </div>
+
+    <div class="btn-row">
+        <button class="btn btn-outline" id="btnUndo">↩ 撤销</button>
+        <button class="btn btn-outline" id="btnHint">💡 提示</button>
+        <button class="btn btn-gold" id="btnReset">🔄 重新开始</button>
+    </div>
+
+    <script>
+        // --- Game Engine ---
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const board = document.getElementById('gameBoard');
+
+        // State
+        let score = 0;
+        let bestScore = parseInt(localStorage.getItem('potatoPeelBest') || '0');
+        let level = 1;
+        const maxLevel = 5;
+        let comboCount = 0;
+        let comboTimer = null;
+        let peeledPixels = 0;
+        let totalSkinPixels = 0;
+        let isPeeling = false;
+        let peelRadius = 28;
+        let potatoData = null;
+        let undoStack = [];
+        let gameActive = true;
+
+        // Level configs — different potato shapes
+        const levels = [
+            { name: '小土豆', shape: 'oval', scale: 0.75, roughness: 0.08, target: 90, bonus: 100 },
+            { name: '椭圆薯', shape: 'oval', scale: 0.82, roughness: 0.12, target: 92, bonus: 150 },
+            { name: '大块头', shape: 'irregular', scale: 0.88, roughness: 0.15, target: 93, bonus: 200 },
+            { name: '怪形薯', shape: 'irregular', scale: 0.90, roughness: 0.18, target: 94, bonus: 250 },
+            { name: '终极土豆', shape: 'irregular', scale: 0.95, roughness: 0.22, target: 95, bonus: 300 },
+        ];
+
+        // Init canvas
+        function resizeCanvas() {
+            const rect = board.getBoundingClientRect();
+            const size = rect.width;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            canvas.width = size * dpr;
+            canvas.height = size * dpr;
+            canvas.style.width = size + 'px';
+            canvas.style.height = size + 'px';
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
+            return size;
+        }
+
+        // Generate potato shape
+        function generatePotato(size) {
+            const cfg = levels[level - 1];
+            const cx = size / 2;
+            const cy = size / 2;
+            const rx = size * cfg.scale * 0.42;
+            const ry = size * cfg.scale * 0.48;
+
+            // Create offscreen canvas for potato mask
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = size;
+            offCanvas.height = size;
+            const offCtx = offCanvas.getContext('2d');
+
+            // Draw potato body
+            offCtx.fillStyle = '#C87941';
+            offCtx.beginPath();
+
+            const points = 60;
+            for (let i = 0; i < points; i++) {
+                const angle = (i / points) * Math.PI * 2;
+                const wobble = 1 + cfg.roughness * (Math.sin(angle * 3) * Math.cos(angle * 5) + Math.sin(angle * 7) * 0.5);
+                const px = cx + Math.cos(angle) * rx * wobble;
+                const py = cy + Math.sin(angle) * ry * wobble;
+                if (i === 0) offCtx.moveTo(px, py);
+                else offCtx.lineTo(px, py);
+            }
+            offCtx.closePath();
+            offCtx.fill();
+
+            // Add eyes (potato eyes / spots)
+            offCtx.fillStyle = '#a0622a';
+            const eyePositions = [];
+            const numEyes = 3 + Math.floor(Math.random() * 4);
+            for (let i = 0; i < numEyes; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 0.15 + Math.random() * 0.5;
+                const ex = cx + Math.cos(angle) * rx * dist;
+                const ey = cy + Math.sin(angle) * ry * dist;
+                const er = 4 + Math.random() * 8;
+                offCtx.beginPath();
+                offCtx.arc(ex, ey, er, 0, Math.PI * 2);
+                offCtx.fill();
+                eyePositions.push({ x: ex, y: ey, r: er });
+            }
+
+            // Darker skin shading
+            offCtx.fillStyle = 'rgba(100, 60, 20, 0.15)';
+            offCtx.beginPath();
+            offCtx.arc(cx, cy, rx, 0, Math.PI * 2);
+            offCtx.fill();
+
+            // Get skin pixel data
+            const skinData = offCtx.getImageData(0, 0, size, size);
+            const skinSet = new Set();
+            for (let i = 0; i < skinData.data.length; i += 4) {
+                if (skinData.data[i + 3] > 0) {
+                    const x = (i / 4) % size;
+                    const y = Math.floor((i / 4) / size);
+                    skinSet.add(y * size + x);
+                }
+            }
+
+            return {
+                size,
+                cx, cy, rx, ry,
+                skinSet,
+                skinData,
+                eyes: eyePositions,
+                peeled: new Set(),
+                config: cfg,
+            };
+        }
+
+        // Render
+        function render() {
+            const size = potatoData.size;
+            ctx.clearRect(0, 0, size, size);
+
+            // Draw peeled (golden inside)
+            if (potatoData.peeled.size > 0) {
+                ctx.fillStyle = '#FFE082';
+                ctx.beginPath();
+                for (const idx of potatoData.peeled) {
+                    const x = idx % size;
+                    const y = Math.floor(idx / size);
+                    ctx.fillRect(x, y, 1, 1);
+                }
+            }
+
+            // Draw skin
+            for (const idx of potatoData.skinSet) {
+                if (potatoData.peeled.has(idx)) continue;
+                const x = idx % size;
+                const y = Math.floor(idx / size);
+                const pxColor = getSkinPixelColor(x, y, size);
+                ctx.fillStyle = pxColor;
+                ctx.fillRect(x, y, 1, 1);
+            }
+
+            // Draw potato eyes
+            for (const eye of potatoData.eyes) {
+                ctx.fillStyle = '#7a4a1e';
+                ctx.beginPath();
+                ctx.arc(eye.x, eye.y, eye.r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#5a3010';
+                ctx.beginPath();
+                ctx.arc(eye.x, eye.y, eye.r * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Draw peel cursor
+            if (isPeeling && gameActive) {
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.arc(mouseX, mouseY, peelRadius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        function getSkinPixelColor(x, y, size) {
+            const idx = (y * size + x) * 4;
+            const d = potatoData.skinData.data;
+            if (idx >= d.length) return '#C87941';
+            const r = d[idx];
+            const g = d[idx + 1];
+            const b = d[idx + 2];
+            // Add some variation
+            const vr = Math.min(255, r + (Math.random() - 0.5) * 10);
+            const vg = Math.min(255, g + (Math.random() - 0.5) * 10);
+            const vb = Math.min(255, b + (Math.random() - 0.5) * 10);
+            return `rgb(${vr},${vg},${vb})`;
+        }
+
+        // Peel at position
+        function peel(x, y) {
+            if (!gameActive || !potatoData) return;
+
+            const size = potatoData.size;
+            const radius = peelRadius;
+            let newlyPeeled = 0;
+
+            for (let dy = -radius; dy <= radius; dy++) {
+                for (let dx = -radius; dx <= radius; dx++) {
+                    if (dx * dx + dy * dy > radius * radius) continue;
+                    const px = Math.floor(x + dx);
+                    const py = Math.floor(y + dy);
+                    if (px < 0 || px >= size || py < 0 || py >= size) continue;
+                    const idx = py * size + px;
+                    if (potatoData.skinSet.has(idx) && !potatoData.peeled.has(idx)) {
+                        potatoData.peeled.add(idx);
+                        newlyPeeled++;
+                    }
+                }
+            }
+
+            if (newlyPeeled > 0) {
+                comboCount++;
+                clearTimeout(comboTimer);
+                comboTimer = setTimeout(() => { comboCount = 0; updateComboDisplay(); }, 800);
+
+                const points = newlyPeeled * (1 + Math.floor(comboCount / 30));
+                score += points;
+                updateScore();
+                updateComboDisplay();
+                updateProgress();
+
+                // Spawn peel particles
+                if (newlyPeeled > 5) spawnPeelParticles(x, y, newlyPeeled);
+
+                // Show combo popup
+                if (comboCount > 0 && comboCount % 30 === 0) {
+                    showComboPopup(x, y, Math.floor(comboCount / 30) + 1);
+                }
+
+                // Check level complete
+                const pct = getPeelPercent();
+                if (pct >= potatoData.config.target && gameActive) {
+                    levelComplete();
+                }
+            }
+        }
+
+        function getPeelPercent() {
+            if (!potatoData) return 0;
+            const total = potatoData.skinSet.size;
+            const peeled = potatoData.peeled.size;
+            return Math.round((peeled / total) * 100);
+        }
+
+        function updateProgress() {
+            const pct = getPeelPercent();
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('progressText').textContent = `削皮进度 ${pct}%`;
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('potatoPeelBest', bestScore);
+                document.getElementById('bestScore').textContent = bestScore;
+            }
+        }
+
+        function updateComboDisplay() {
+            document.getElementById('combo').textContent = 'x' + Math.max(1, Math.floor(comboCount / 10) + 1);
+        }
+
+        function showComboPopup(x, y, multiplier) {
+            const pop = document.createElement('div');
+            pop.className = 'combo-pop';
+            pop.textContent = `🔥 x${multiplier}`;
+            const rect = board.getBoundingClientRect();
+            pop.style.left = rect.left + x + 'px';
+            pop.style.top = rect.top + y + 'px';
+            document.body.appendChild(pop);
+            setTimeout(() => pop.remove(), 1000);
+        }
+
+        function spawnPeelParticles(x, y, count) {
+            const rect = board.getBoundingClientRect();
+            const particles = ['🍂', '✨', '💫', '🥔', '⭐'];
+            for (let i = 0; i < Math.min(count / 5, 8); i++) {
+                const p = document.createElement('div');
+                p.className = 'peel-particle';
+                p.textContent = particles[Math.floor(Math.random() * particles.length)];
+                p.style.left = rect.left + x + 'px';
+                p.style.top = rect.top + y + 'px';
+                p.style.setProperty('--dx', (Math.random() - 0.5) * 120 + 'px');
+                p.style.setProperty('--dy', -(30 + Math.random() * 80) + 'px');
+                p.style.setProperty('--r', (Math.random() - 0.5) * 360 + 'deg');
+                document.body.appendChild(p);
+                setTimeout(() => p.remove(), 800);
+            }
+        }
+
+        function levelComplete() {
+            gameActive = false;
+            const bonus = potatoData.config.bonus;
+            score += bonus;
+            updateScore();
+
+            const overlay = document.getElementById('levelOverlay');
+            overlay.classList.remove('hidden');
+            document.getElementById('overlayScore').textContent = '+' + bonus + ' 奖励分！';
+            document.getElementById('overlayTitle').textContent =
+                level >= maxLevel ? '🏆 全部通关！' : '✨ 太棒了！';
+
+            const btn = document.getElementById('overlayBtn');
+            if (level >= maxLevel) {
+                btn.textContent = '🎉 查看成绩';
+                btn.onclick = showEndScreen;
+            } else {
+                btn.textContent = '继续下一关 →';
+                btn.onclick = nextLevel;
+            }
+        }
+
+        function showEndScreen() {
+            document.getElementById('levelOverlay').classList.add('hidden');
+            document.getElementById('endOverlay').classList.remove('hidden');
+            document.getElementById('endScore').textContent = score;
+        }
+
+        function nextLevel() {
+            level++;
+            document.getElementById('levelOverlay').classList.add('hidden');
+            document.getElementById('level').textContent = level + '/' + maxLevel;
+            resetLevel();
+        }
+
+        function resetLevel() {
+            comboCount = 0;
+            peeledPixels = 0;
+            updateComboDisplay();
+            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('progressText').textContent = '削皮进度 0%';
+            document.getElementById('levelOverlay').classList.add('hidden');
+            document.getElementById('endOverlay').classList.add('hidden');
+            gameActive = true;
+            undoStack = [];
+
+            const size = resizeCanvas();
+            potatoData = generatePotato(size);
+            totalSkinPixels = potatoData.skinSet.size;
+            render();
+        }
+
+        function restartGame() {
+            score = 0;
+            level = 1;
+            document.getElementById('score').textContent = '0';
+            document.getElementById('level').textContent = '1/5';
+            document.getElementById('endOverlay').classList.add('hidden');
+            resetLevel();
+        }
+
+        function undoLastPeel() {
+            if (!gameActive || !potatoData || undoStack.length === 0) return;
+            const lastPeeled = undoStack.pop();
+            for (const idx of lastPeeled) {
+                potatoData.peeled.delete(idx);
+            }
+            comboCount = Math.max(0, comboCount - lastPeeled.length);
+            updateComboDisplay();
+            updateProgress();
+            render();
+        }
+
+        function showHint() {
+            if (!gameActive || !potatoData) return;
+            // Flash remaining skin areas
+            let remaining = [];
+            for (const idx of potatoData.skinSet) {
+                if (!potatoData.peeled.has(idx)) {
+                    remaining.push(idx);
+                }
+            }
+            if (remaining.length === 0) return;
+
+            // Highlight random remaining spots
+            const size = potatoData.size;
+            for (let i = 0; i < 15; i++) {
+                const idx = remaining[Math.floor(Math.random() * remaining.length)];
+                const x = idx % size;
+                const y = Math.floor(idx / size);
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // --- Input handling ---
+        let mouseX = 0, mouseY = 0;
+
+        function getPos(e) {
+            const rect = board.getBoundingClientRect();
+            const scaleX = potatoData ? potatoData.size / rect.width : 1;
+            const scaleY = potatoData ? potatoData.size / rect.height : 1;
+
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY,
+            };
+        }
+
+        function onStart(e) {
+            e.preventDefault();
+            if (!gameActive) return;
+            const pos = getPos(e);
+            mouseX = pos.x;
+            mouseY = pos.y;
+            isPeeling = true;
+            undoStack.push(new Set());
+            peel(pos.x, pos.y);
+        }
+
+        function onMove(e) {
+            e.preventDefault();
+            if (!isPeeling || !gameActive) return;
+            const pos = getPos(e);
+            mouseX = pos.x;
+            mouseY = pos.y;
+            peel(pos.x, pos.y);
+            render();
+        }
+
+        function onEnd(e) {
+            if (!isPeeling) return;
+            isPeeling = false;
+            // Save undo state
+            if (undoStack.length > 0 && undoStack[undoStack.length - 1].size === 0) {
+                undoStack.pop();
+            }
+            // Trim undo stack
+            if (undoStack.length > 20) undoStack.shift();
+            render();
+        }
+
+        board.addEventListener('mousedown', onStart);
+        board.addEventListener('mousemove', onMove);
+        board.addEventListener('mouseup', onEnd);
+        board.addEventListener('mouseleave', onEnd);
+        board.addEventListener('touchstart', onStart, { passive: false });
+        board.addEventListener('touchmove', onMove, { passive: false });
+        board.addEventListener('touchend', onEnd);
+
+        // --- Buttons ---
+        document.getElementById('btnUndo').addEventListener('click', undoLastPeel);
+        document.getElementById('btnHint').addEventListener('click', showHint);
+        document.getElementById('btnReset').addEventListener('click', restartGame);
+        document.getElementById('restartBtn').addEventListener('click', restartGame);
+
+        // --- Init ---
+        function init() {
+            document.getElementById('bestScore').textContent = bestScore;
+            const size = resizeCanvas();
+            potatoData = generatePotato(size);
+            totalSkinPixels = potatoData.skinSet.size;
+            render();
+        }
+
+        window.addEventListener('resize', () => {
+            if (potatoData) {
+                const size = resizeCanvas();
+                potatoData.size = size;
+                render();
+            }
+        });
+
+        // Prevent scrolling on game board
+        board.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
+
+        init();
+        console.log('🥔 削土豆皮大挑战就绪！');
+    </script>
+</body>
+</html>
