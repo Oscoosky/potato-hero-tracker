@@ -491,6 +491,7 @@ let gameActive = false;
 let timerInterval = null;
 let timeLeft = 0;
 let totalElapsed = 0;
+let renderPending = false;
 
 // ─── Level configs ───
 const levels = [
@@ -611,26 +612,38 @@ function generatePotato(size) {
     const rx = size * lvl.scale * 0.42;
     const ry = size * lvl.scale * 0.48;
 
-    const offCanvas = document.createElement('canvas');
-    offCanvas.width = size; offCanvas.height = size;
-    const offCtx = offCanvas.getContext('2d');
-
-    offCtx.fillStyle = '#C87941';
-    offCtx.beginPath();
-    const points = 60;
-    for (let i = 0; i < points; i++) {
-        const angle = (i / points) * Math.PI * 2;
-        const wobble = 1 + lvl.roughness * (Math.sin(angle*3)*Math.cos(angle*5) + Math.sin(angle*7)*0.5);
-        const px = cx + Math.cos(angle) * rx * wobble;
-        const py = cy + Math.sin(angle) * ry * wobble;
-        if (i === 0) offCtx.moveTo(px, py);
-        else offCtx.lineTo(px, py);
+    // Helper: draw potato path
+    function drawPotatoPath(c) {
+        c.beginPath();
+        const points = 60;
+        for (let i = 0; i < points; i++) {
+            const angle = (i / points) * Math.PI * 2;
+            const wobble = 1 + lvl.roughness * (Math.sin(angle*3)*Math.cos(angle*5) + Math.sin(angle*7)*0.5);
+            const px = cx + Math.cos(angle) * rx * wobble;
+            const py = cy + Math.sin(angle) * ry * wobble;
+            if (i === 0) c.moveTo(px, py); else c.lineTo(px, py);
+        }
+        c.closePath();
     }
-    offCtx.closePath();
-    offCtx.fill();
+
+    // --- Flesh canvas (filled potato, no skin) ---
+    const fleshCanvas = document.createElement('canvas');
+    fleshCanvas.width = size; fleshCanvas.height = size;
+    const fCtx = fleshCanvas.getContext('2d');
+    fCtx.fillStyle = '#FFE082';
+    drawPotatoPath(fCtx);
+    fCtx.fill();
+
+    // --- Skin canvas (potato with skin texture) ---
+    const skinCanvas = document.createElement('canvas');
+    skinCanvas.width = size; skinCanvas.height = size;
+    const sCtx = skinCanvas.getContext('2d');
+    sCtx.fillStyle = '#C87941';
+    drawPotatoPath(sCtx);
+    sCtx.fill();
 
     // Eyes
-    offCtx.fillStyle = '#8B5A2B';
+    sCtx.fillStyle = '#8B5A2B';
     const eyes = [];
     const numEyes = 2 + Math.floor(Math.random() * 5);
     for (let i = 0; i < numEyes; i++) {
@@ -639,46 +652,59 @@ function generatePotato(size) {
         const ex = cx + Math.cos(angle) * rx * dist;
         const ey = cy + Math.sin(angle) * ry * dist;
         const er = 3 + Math.random() * 7;
-        offCtx.beginPath(); offCtx.arc(ex, ey, er, 0, Math.PI*2); offCtx.fill();
+        sCtx.beginPath(); sCtx.arc(ex, ey, er, 0, Math.PI*2); sCtx.fill();
         eyes.push({ x:ex, y:ey, r:er });
     }
 
-    offCtx.fillStyle = 'rgba(80,40,10,0.12)';
-    offCtx.beginPath(); offCtx.arc(cx, cy, rx, 0, Math.PI*2); offCtx.fill();
+    // Shading
+    sCtx.fillStyle = 'rgba(80,40,10,0.12)';
+    sCtx.beginPath(); sCtx.arc(cx, cy, rx, 0, Math.PI*2); sCtx.fill();
 
-    const skinData = offCtx.getImageData(0, 0, size, size);
-    const skinSet = new Set();
-    for (let i = 0; i < skinData.data.length; i += 4) {
-        if (skinData.data[i + 3] > 0) skinSet.add((i/4) % size + Math.floor((i/4)/size) * size);
+    // Save skin pixel data for undo/hint
+    const skinImageData = sCtx.getImageData(0, 0, size, size);
+    let totalSkin = 0;
+    const skinMask = new Uint8Array(size * size);
+    for (let i = 0; i < skinImageData.data.length; i += 4) {
+        if (skinImageData.data[i + 3] > 0) {
+            skinMask[i / 4] = 1;
+            totalSkin++;
+        }
     }
 
-    return { size, cx, cy, rx, ry, skinSet, skinData, eyes, peeled: new Set() };
+    // --- Peel accumulation canvas (transparent, peeled circles drawn as white) ---
+    const peelCanvas = document.createElement('canvas');
+    peelCanvas.width = size; peelCanvas.height = size;
+
+    return { size, cx, cy, eyes, skinCanvas, fleshCanvas, peelCanvas, skinImageData, skinMask, peeledMask: new Uint8Array(size * size), totalSkin, peeledCount: 0 };
 }
 
 function render() {
     const s = potatoData.size;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    ctx.save();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    // 1. Draw flesh base (yellow inside of potato)
     ctx.clearRect(0, 0, s, s);
+    ctx.drawImage(potatoData.fleshCanvas, 0, 0);
 
-    // Peeled inside
-    if (potatoData.peeled.size > 0) {
-        ctx.fillStyle = '#FFE082';
-        for (const idx of potatoData.peeled) {
-            ctx.fillRect(idx % s, Math.floor(idx / s), 1, 1);
-        }
-    }
+    // 2. Draw skin on top
+    ctx.drawImage(potatoData.skinCanvas, 0, 0);
 
-    // Skin
-    for (const idx of potatoData.skinSet) {
-        if (potatoData.peeled.has(idx)) continue;
-        const x = idx % s, y = Math.floor(idx / s);
-        const d = potatoData.skinData.data;
-        const di = (y * s + x) * 4;
-        const r = d[di], g = d[di+1], b = d[di+2];
-        ctx.fillStyle = `rgb(${Math.min(255,r+Math.random()*8)},${Math.min(255,g+Math.random()*8)},${Math.min(255,b+Math.random()*8)})`;
-        ctx.fillRect(x, y, 1, 1);
-    }
+    // 3. Punch holes in skin where peeled (destination-out erases)
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.drawImage(potatoData.peelCanvas, 0, 0);
 
-    // Eyes
+    // 4. Draw flesh through the holes
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.drawImage(potatoData.fleshCanvas, 0, 0);
+
+    ctx.restore();
+
+    // Eyes on top (with scaling)
+    ctx.save();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
     for (const eye of potatoData.eyes) {
         ctx.fillStyle = '#7a4a1e';
         ctx.beginPath(); ctx.arc(eye.x, eye.y, eye.r, 0, Math.PI*2); ctx.fill();
@@ -688,37 +714,53 @@ function render() {
 
     // Cursor ring
     if (isPeeling && gameActive) {
-        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
         ctx.lineWidth = 2;
         ctx.setLineDash([5,5]);
         ctx.beginPath(); ctx.arc(mouseX, mouseY, peelRadius, 0, Math.PI*2); ctx.stroke();
         ctx.setLineDash([]);
     }
+    ctx.restore();
 }
 
 // ─── Peel logic ───
+function getPeelCtx() {
+    return potatoData.peelCanvas.getContext('2d');
+}
+
 function peel(x, y) {
     if (!gameActive || !potatoData) return;
-    const s = potatoData.size;
-    const r = peelRadius;
-    let newly = 0;
-    const newSet = new Set();
 
+    const r = peelRadius;
+    const s = potatoData.size;
+    const skinMask = potatoData.skinMask;
+    const peeledMask = potatoData.peeledMask;
+    const newlyPeeled = [];
+
+    const r2 = r * r;
     for (let dy = -r; dy <= r; dy++) {
         for (let dx = -r; dx <= r; dx++) {
-            if (dx*dx + dy*dy > r*r) continue;
-            const px = Math.floor(x+dx), py = Math.floor(y+dy);
-            if (px<0||px>=s||py<0||py>=s) continue;
-            const idx = py*s + px;
-            if (potatoData.skinSet.has(idx) && !potatoData.peeled.has(idx)) {
-                potatoData.peeled.add(idx);
-                newSet.add(idx);
-                newly++;
+            if (dx*dx + dy*dy > r2) continue;
+            const px = Math.floor(x + dx), py = Math.floor(y + dy);
+            if (px < 0 || px >= s || py < 0 || py >= s) continue;
+            const idx = py * s + px;
+            if (skinMask[idx] && !peeledMask[idx]) {
+                peeledMask[idx] = 1;
+                newlyPeeled.push(idx);
             }
         }
     }
 
+    const newly = newlyPeeled.length;
     if (newly > 0) {
+        // Draw the peel circle ONCE (not per pixel)
+        const pc = getPeelCtx();
+        pc.fillStyle = '#fff';
+        pc.beginPath();
+        pc.arc(x, y, r, 0, Math.PI * 2);
+        pc.fill();
+        potatoData.peeledCount += newly;
+
         comboCount++;
         clearTimeout(comboTimer);
         comboTimer = setTimeout(() => { comboCount = 0; updateComboUI(); }, 700);
@@ -740,7 +782,7 @@ function peel(x, y) {
 
 function getPeelPercent() {
     if (!potatoData) return 0;
-    return Math.round((potatoData.peeled.size / potatoData.skinSet.size) * 100);
+    return Math.round((potatoData.peeledCount / potatoData.totalSkin) * 100);
 }
 
 function updateProgress() {
@@ -888,9 +930,15 @@ function showDiffSelect() {
 // ─── Buttons ───
 document.getElementById('btnUndo').addEventListener('click', () => {
     if (!gameActive || !potatoData || undoStack.length === 0) return;
-    const last = undoStack.pop();
-    for (const idx of last) potatoData.peeled.delete(idx);
-    comboCount = Math.max(0, comboCount - last.length);
+    // Restore peel canvas from saved state
+    const saved = undoStack.pop();
+    const pc = getPeelCtx();
+    pc.clearRect(0, 0, potatoData.size, potatoData.size);
+    pc.putImageData(saved.imageData, 0, 0);
+    potatoData.peeledCount = saved.peeledCount;
+    // Restore peeledMask
+    potatoData.peeledMask = saved.peeledMask;
+    comboCount = Math.max(0, comboCount - 20);
     updateComboUI();
     updateProgress();
     render();
@@ -898,13 +946,23 @@ document.getElementById('btnUndo').addEventListener('click', () => {
 
 document.getElementById('btnHint').addEventListener('click', () => {
     if (!gameActive || !potatoData) return;
-    const remaining = [...potatoData.skinSet].filter(i => !potatoData.peeled.has(i));
-    if (!remaining.length) return;
     const s = potatoData.size;
+    const skinMask = potatoData.skinMask;
+    const peeledMask = potatoData.peeledMask;
+    const remaining = [];
+    for (let i = 0; i < skinMask.length; i++) {
+        if (skinMask[i] && !peeledMask[i]) remaining.push(i);
+    }
+    if (!remaining.length) return;
     for (let i = 0; i < 12; i++) {
-        const idx = remaining[Math.floor(Math.random()*remaining.length)];
-        ctx.fillStyle = 'rgba(255,255,255,0.45)';
-        ctx.beginPath(); ctx.arc(idx%s, Math.floor(idx/s), 4, 0, Math.PI*2); ctx.fill();
+        const idx = remaining[Math.floor(Math.random() * remaining.length)];
+        const px = idx % s, py = Math.floor(idx / s);
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        ctx.save();
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
     }
 });
 
@@ -930,7 +988,14 @@ function onStart(e) {
     const p = getPos(e);
     mouseX=p.x; mouseY=p.y;
     isPeeling = true;
-    undoStack.push(new Set());
+    // Save undo snapshot (peel canvas + peeledMask + count)
+    const pc = getPeelCtx();
+    undoStack.push({
+        imageData: pc.getImageData(0, 0, potatoData.size, potatoData.size),
+        peeledCount: potatoData.peeledCount,
+        peeledMask: new Uint8Array(potatoData.peeledMask)
+    });
+    if (undoStack.length > 30) undoStack.shift();
     peel(p.x, p.y);
 }
 
@@ -939,26 +1004,16 @@ function onMove(e) {
     if (!isPeeling || !gameActive) return;
     const p = getPos(e);
     mouseX=p.x; mouseY=p.y;
-    // Track undo
-    if (undoStack.length && undoStack[undoStack.length-1]) {
-        for (let dy=-peelRadius; dy<=peelRadius; dy++)
-            for (let dx=-peelRadius; dx<=peelRadius; dx++)
-                if (dx*dx+dy*dy <= peelRadius*peelRadius) {
-                    const px=Math.floor(p.x+dx), py=Math.floor(p.y+dy);
-                    const idx = py*potatoData.size + px;
-                    if (potatoData.skinSet.has(idx) && !potatoData.peeled.has(idx))
-                        undoStack[undoStack.length-1].add(idx);
-                }
-    }
     peel(p.x, p.y);
-    render();
+    if (!renderPending) {
+        renderPending = true;
+        requestAnimationFrame(() => { renderPending = false; render(); });
+    }
 }
 
 function onEnd() {
     if (!isPeeling) return;
     isPeeling = false;
-    if (undoStack.length && undoStack[undoStack.length-1].size === 0) undoStack.pop();
-    if (undoStack.length > 30) undoStack.shift();
     render();
 }
 
